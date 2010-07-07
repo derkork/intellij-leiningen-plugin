@@ -1,0 +1,40 @@
+<idea-plugin version="2">
+    <name>Leiningen</name>
+    <description>This plugin integrates the Leiningen build system into IntelliJ IDEA.</description>
+    <version>0.1</version>
+    <vendor>Jan Thomä</vendor>
+    <idea-version since-build="93.13"/>
+
+    <application-components>
+    </application-components>
+
+    <project-components>
+        <component>
+            <implementation-class>de.janthomae.leiningenplugin.LeiningenProjectNavigator</implementation-class>
+        </component>
+        <component>
+            <implementation-class>de.janthomae.leiningenplugin.LeiningenRunner</implementation-class>
+        </component>
+        <component>
+            <implementation-class>de.janthomae.leiningenplugin.LeiningenProjectsManager</implementation-class>
+        </component>
+    </project-components>
+
+    <actions>
+        <action id="Leiningen.RunBuild"
+                class="de.janthomae.leiningenplugin.RunBuildAction"
+                text="_Run Leiningen Build"
+                description="Execute selected leiningen goal"
+                icon="/actions/execute.png">
+        </action>
+
+        <group id="Leiningen.NavigatorActionsToolbar">
+            <reference id="Leiningen.RunBuild"/>
+        </group>
+
+    </actions>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <configurationType implementation="de.janthomae.leiningenplugin.LeiningenRunConfigurationType"/>
+    </extensions>
+</idea-plugin>
