@@ -1,4 +1,4 @@
-package de.janthomae.leiningenplugin;
+package de.janthomae.leiningenplugin.run;
 
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.ConfigurationException;
@@ -17,7 +17,7 @@ public class LeiningenRunConfigurationSettings extends SettingsEditor<LeiningenR
   Configurable myCompositeConfigurable;
 
   public LeiningenRunConfigurationSettings(final Project p) {
-    myCompositeConfigurable = new LeiningenConfigurable();
+    myCompositeConfigurable = new LeiningenRunConfigurationConfigurable();
   }
 
   protected void resetEditorFrom(LeiningenRunConfiguration configuration) {

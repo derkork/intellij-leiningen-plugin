@@ -1,4 +1,4 @@
-package de.janthomae.leiningenplugin;
+package de.janthomae.leiningenplugin.run;
 
 import com.intellij.execution.ExecutionException;
 import com.intellij.execution.Executor;
@@ -54,7 +54,7 @@ public class LeiningenRunConfiguration extends RunConfigurationBase
     public RunProfileState getState(@NotNull Executor executor, @NotNull ExecutionEnvironment executionEnvironment)
             throws ExecutionException {
         LeiningenCommandLineState state =
-                new LeiningenCommandLineState(LeiningenRunner.getInstance(getProject()).getState(), myRunnerParams,
+                new LeiningenCommandLineState(LeiningenRunnerSettings.getInstance(), myRunnerParams,
                         executionEnvironment);
         state.setConsoleBuilder(TextConsoleBuilderFactory.getInstance().createBuilder(getProject()));
         return state;

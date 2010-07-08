@@ -1,4 +1,4 @@
-package de.janthomae.leiningenplugin;
+package de.janthomae.leiningenplugin.navigator;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
@@ -6,6 +6,9 @@ import com.intellij.openapi.wm.ToolWindowAnchor;
 import com.intellij.openapi.wm.ex.ToolWindowManagerAdapter;
 import com.intellij.openapi.wm.ex.ToolWindowManagerEx;
 import com.intellij.ui.treeStructure.SimpleTree;
+import de.janthomae.leiningenplugin.LeiningenProjectsManager;
+import de.janthomae.leiningenplugin.LeiningenProjectsManagerListener;
+import de.janthomae.leiningenplugin.SimpleProjectComponent;
 
 import javax.swing.*;
 import java.awt.*;
@@ -34,6 +37,11 @@ public class LeiningenProjectNavigator extends SimpleProjectComponent {
         runWhenInitialized(myProject, new Runnable() {
             public void run() {
                 addPanel();
+                myProjectsManager.addProjectsManagerListener(new LeiningenProjectsManagerListener() {
+                    public void projectsChanged() {
+                        scheduleStructureUpdate();
+                    }
+                });
             }
         });
 

@@ -1,4 +1,4 @@
-package de.janthomae.leiningenplugin;
+package de.janthomae.leiningenplugin.run;
 
 import java.util.List;
 

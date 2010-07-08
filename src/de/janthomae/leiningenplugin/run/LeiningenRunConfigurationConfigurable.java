@@ -1,4 +1,4 @@
-package de.janthomae.leiningenplugin;
+package de.janthomae.leiningenplugin.run;
 
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.ConfigurationException;
@@ -10,7 +10,7 @@ import javax.swing.*;
  * @author <a href="janthomae@janthomae.de">Jan Thom&auml;</a>
  * @version $Id:$
  */
-public class LeiningenConfigurable implements Configurable {
+public class LeiningenRunConfigurationConfigurable implements Configurable {
     @Nls
     public String getDisplayName() {
         return null;

@@ -1,4 +1,4 @@
-package de.janthomae.leiningenplugin;
+package de.janthomae.leiningenplugin.run;
 
 import com.intellij.execution.ExecutionException;
 import com.intellij.execution.configurations.CommandLineState;
@@ -27,7 +27,7 @@ public class LeiningenCommandLineState extends CommandLineState {
     @Override
     protected OSProcessHandler startProcess() throws ExecutionException {
         GeneralCommandLine commandLine = new GeneralCommandLine();
-        commandLine.setExePath(mySettings.getLeiningenPath());
+        commandLine.setExePath(mySettings.leiningenPath);
         commandLine.addParameters(myParameters.getMyGoals());
         commandLine.setWorkDirectory(myParameters.getWorkingDirectory());
         return new ColoredProcessHandler(commandLine.createProcess(), commandLine.getCommandLineString(),

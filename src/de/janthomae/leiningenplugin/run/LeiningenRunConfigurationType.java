@@ -1,4 +1,4 @@
-package de.janthomae.leiningenplugin;
+package de.janthomae.leiningenplugin.run;
 
 import com.intellij.compiler.options.CompileStepBeforeRun;
 import com.intellij.execution.*;
@@ -7,13 +7,17 @@ import com.intellij.execution.configurations.ConfigurationTypeUtil;
 import com.intellij.execution.configurations.RunConfiguration;
 import com.intellij.execution.executors.DefaultRunExecutor;
 import com.intellij.execution.impl.RunnerAndConfigurationSettingsImpl;
+import com.intellij.execution.process.ProcessAdapter;
+import com.intellij.execution.process.ProcessEvent;
+import com.intellij.execution.process.ProcessHandler;
 import com.intellij.execution.runners.ExecutionEnvironment;
 import com.intellij.execution.runners.ProgramRunner;
+import com.intellij.execution.ui.RunContentDescriptor;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Key;
+import com.intellij.openapi.vfs.LocalFileSystem;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 
@@ -44,7 +48,7 @@ public class LeiningenRunConfigurationType implements LocatableConfigurationType
     }
 
     public RunnerAndConfigurationSettings createConfigurationByLocation(Location location) {
-        return createRunnerAndConfigurationSettings(null, null, location.getProject());
+        return createRunnerAndConfigurationSettings(null, location.getProject());
     }
 
 
@@ -75,11 +79,8 @@ public class LeiningenRunConfigurationType implements LocatableConfigurationType
 
     public static void runConfiguration(Project project,
                                         LeiningenRunnerParameters params,
-                                        LeiningenRunnerSettings runnerSettings,
-                                        DataContext context,
-                                        @Nullable ProgramRunner.Callback callback) {
+                                        DataContext context) {
         RunnerAndConfigurationSettings configSettings = createRunnerAndConfigurationSettings(
-                runnerSettings,
                 params,
                 project);
 
@@ -88,13 +89,25 @@ public class LeiningenRunConfigurationType implements LocatableConfigurationType
         Executor executor = DefaultRunExecutor.getRunExecutorInstance();
 
         try {
-            runner.execute(executor, env, callback);
+            runner.execute(executor, env, new ProgramRunner.Callback() {
+                public void processStarted(RunContentDescriptor runContentDescriptor) {
+                    final ProcessHandler runContentDescriptorProcessHandler = runContentDescriptor.getProcessHandler();
+                    if (runContentDescriptorProcessHandler != null) {
+                        runContentDescriptorProcessHandler.addProcessListener(new ProcessAdapter() {
+                            @Override
+                            public void processTerminated(ProcessEvent event) {
+                                LocalFileSystem.getInstance().refreshWithoutFileWatcher(true);
+                            }
+                        });
+                    }
+                }
+            });
         } catch (ExecutionException e) {
         }
     }
 
     private static RunnerAndConfigurationSettings createRunnerAndConfigurationSettings(
-            LeiningenRunnerSettings runnerSettings, LeiningenRunnerParameters params, Project project) {
+            LeiningenRunnerParameters params, Project project) {
         LeiningenRunConfigurationType type =
                 ConfigurationTypeUtil.findConfigurationType(LeiningenRunConfigurationType.class);
 

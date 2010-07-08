@@ -1,6 +1,13 @@
 <idea-plugin version="2">
     <name>Leiningen</name>
     <description>This plugin integrates the Leiningen build system into IntelliJ IDEA.</description>
+    <change-notes>
+        Version 0.1
+
+        - Initial release
+        - Leiningen needs to be installed. You can configure it's location within the plugin.
+        - You can run leiningen goals in your project.
+    </change-notes>
     <version>0.1</version>
     <vendor>Jan Thomä</vendor>
     <idea-version since-build="93.13"/>
@@ -10,31 +17,43 @@
 
     <project-components>
         <component>
-            <implementation-class>de.janthomae.leiningenplugin.LeiningenProjectNavigator</implementation-class>
-        </component>
-        <component>
-            <implementation-class>de.janthomae.leiningenplugin.LeiningenRunner</implementation-class>
+            <implementation-class>de.janthomae.leiningenplugin.navigator.LeiningenProjectNavigator
+            </implementation-class>
         </component>
         <component>
             <implementation-class>de.janthomae.leiningenplugin.LeiningenProjectsManager</implementation-class>
         </component>
+
     </project-components>
+
 
     <actions>
         <action id="Leiningen.RunBuild"
-                class="de.janthomae.leiningenplugin.RunBuildAction"
+                class="de.janthomae.leiningenplugin.navigator.RunBuildAction"
                 text="_Run Leiningen Build"
                 description="Execute selected leiningen goal"
                 icon="/actions/execute.png">
         </action>
 
+        <action id="Leiningen.AddManagedFiles"
+                class="de.janthomae.leiningenplugin.navigator.AddManagedFilesAction"
+                text="_Add Leiningen file"
+                description="Add a Leiningen file"
+                icon="/general/add.png">
+        </action>
+
         <group id="Leiningen.NavigatorActionsToolbar">
             <reference id="Leiningen.RunBuild"/>
+            <separator/>
+            <reference id="Leiningen.AddManagedFiles"/>
         </group>
 
     </actions>
 
     <extensions defaultExtensionNs="com.intellij">
-        <configurationType implementation="de.janthomae.leiningenplugin.LeiningenRunConfigurationType"/>
+        <configurationType implementation="de.janthomae.leiningenplugin.run.LeiningenRunConfigurationType"/>
+        <applicationConfigurable implementation="de.janthomae.leiningenplugin.settings.LeiningenSettings"/>
+        <applicationService serviceInterface="de.janthomae.leiningenplugin.run.LeiningenRunnerSettings"
+                            serviceImplementation="de.janthomae.leiningenplugin.run.LeiningenRunnerSettings"/>
     </extensions>
 </idea-plugin>

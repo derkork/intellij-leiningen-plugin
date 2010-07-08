@@ -1,10 +1,12 @@
-package de.janthomae.leiningenplugin;
+package de.janthomae.leiningenplugin.navigator;
 
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.treeStructure.SimpleTree;
+import de.janthomae.leiningenplugin.LeiningenDataKeys;
+import de.janthomae.leiningenplugin.LeiningenProject;
 import org.jetbrains.annotations.NonNls;
 
 import javax.swing.*;
@@ -46,14 +48,14 @@ public class LeiningenProjectNavigatorPanel extends SimpleToolWindowPanel implem
     }
 
     private LeiningenProject extractLeiningenProject() {
-        List<LeiningenProjectStructure.LeiningenProjectNode> projectNodes =
+        List<LeiningenProjectNode> projectNodes =
                 LeiningenProjectStructure
-                        .getSelectedNodes(myTree, LeiningenProjectStructure.LeiningenProjectNode.class);
+                        .getSelectedNodes(myTree, LeiningenProjectNode.class);
         if (!projectNodes.isEmpty()) {
             return projectNodes.get(0).getLeiningenProject();
         }
-        List<LeiningenProjectStructure.GoalNode> goalNodes =
-                LeiningenProjectStructure.getSelectedNodes(myTree, LeiningenProjectStructure.GoalNode.class);
+        List<LeiningenGoalNode> goalNodes =
+                LeiningenProjectStructure.getSelectedNodes(myTree, LeiningenGoalNode.class);
         if (!goalNodes.isEmpty()) {
             return goalNodes.get(0).getLeiningenProject();
         }
@@ -62,17 +64,17 @@ public class LeiningenProjectNavigatorPanel extends SimpleToolWindowPanel implem
 
     private List<String> extractGoals() {
         List<String> result = new ArrayList<String>();
-        List<LeiningenProjectStructure.GoalNode> v =
-                LeiningenProjectStructure.getSelectedNodes(myTree, LeiningenProjectStructure.GoalNode.class);
-        for (LeiningenProjectStructure.GoalNode goalNode : v) {
+        List<LeiningenGoalNode> v =
+                LeiningenProjectStructure.getSelectedNodes(myTree, LeiningenGoalNode.class);
+        for (LeiningenGoalNode goalNode : v) {
             result.add(goalNode.getGoalName());
         }
         return result;
     }
 
     private VirtualFile extractVirtualFile() {
-        for (LeiningenProjectStructure.LeiningenSimpleNode each : LeiningenProjectStructure
-                .getSelectedNodes(myTree, LeiningenProjectStructure.LeiningenSimpleNode.class)) {
+        for (LeiningenProjectNode each : LeiningenProjectStructure
+                .getSelectedNodes(myTree, LeiningenProjectNode.class)) {
             VirtualFile file = each.getVirtualFile();
             if (file != null && file.isValid()) return file;
         }
