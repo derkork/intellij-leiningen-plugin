@@ -2,13 +2,13 @@
     <name>Leiningen</name>
     <description>This plugin integrates the Leiningen build system into IntelliJ IDEA.</description>
     <change-notes>
-        Version 0.1
+        Version 0.0.1
 
         - Initial release
         - Leiningen needs to be installed. You can configure it's location within the plugin.
         - You can run leiningen goals in your project.
     </change-notes>
-    <version>0.1</version>
+    <version>0.0.1</version>
     <vendor>Jan Thomä</vendor>
     <idea-version since-build="93.13"/>
 
