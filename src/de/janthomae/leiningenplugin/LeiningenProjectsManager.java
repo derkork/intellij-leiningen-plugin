@@ -14,6 +14,8 @@ public class LeiningenProjectsManager extends SimpleProjectComponent {
     private List<LeiningenProject> myLeiningenProjects = new ArrayList<LeiningenProject>();
     private LeiningenProjectsManagerWatcher myWatcher;
     private List<LeiningenProjectsManagerListener> listeners = new ArrayList<LeiningenProjectsManagerListener>();
+    public static final String[] GOALS = new String[]{
+            "pom", "help", "upgrade", "install", "jar", "deps", "uberjar", "clean", "compile", "version"};
     public static final String PROJECT_CLJ = "project.clj";
 
     protected LeiningenProjectsManager(Project project) {

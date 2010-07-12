@@ -28,7 +28,7 @@ public class LeiningenCommandLineState extends CommandLineState {
     protected OSProcessHandler startProcess() throws ExecutionException {
         GeneralCommandLine commandLine = new GeneralCommandLine();
         commandLine.setExePath(mySettings.leiningenPath);
-        commandLine.addParameters(myParameters.getMyGoals());
+        commandLine.addParameters(myParameters.getGoals());
         commandLine.setWorkDirectory(myParameters.getWorkingDirectory());
         return new ColoredProcessHandler(commandLine.createProcess(), commandLine.getCommandLineString(),
                 EncodingManager.getInstance().getDefaultCharset());

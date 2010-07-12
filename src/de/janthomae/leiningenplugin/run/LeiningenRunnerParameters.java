@@ -1,5 +1,8 @@
 package de.janthomae.leiningenplugin.run;
 
+import org.jetbrains.annotations.NotNull;
+
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -8,10 +11,18 @@ import java.util.List;
  */
 public class LeiningenRunnerParameters implements Cloneable {
     private List<String> myGoals;
+    private String myWorkingDirectory;
 
-    public LeiningenRunnerParameters(List<String> myGoals, String workingDirectory) {
+
+    // Serialization, only.
+    public LeiningenRunnerParameters() {
+        myGoals = new ArrayList<String>();
+        myWorkingDirectory = "";
+    }
+    
+    public LeiningenRunnerParameters(@NotNull List<String> myGoals, String workingDirectory) {
         this.myGoals = myGoals;
-        this.workingDirectory = workingDirectory;
+        this.myWorkingDirectory = workingDirectory;
     }
 
     @Override
@@ -22,7 +33,8 @@ public class LeiningenRunnerParameters implements Cloneable {
         LeiningenRunnerParameters that = (LeiningenRunnerParameters) o;
 
         if (myGoals != null ? !myGoals.equals(that.myGoals) : that.myGoals != null) return false;
-        if (workingDirectory != null ? !workingDirectory.equals(that.workingDirectory) : that.workingDirectory != null)
+        if (myWorkingDirectory != null ? !myWorkingDirectory
+                .equals(that.myWorkingDirectory) : that.myWorkingDirectory != null)
             return false;
 
         return true;
@@ -31,26 +43,26 @@ public class LeiningenRunnerParameters implements Cloneable {
     @Override
     public int hashCode() {
         int result = myGoals != null ? myGoals.hashCode() : 0;
-        result = 31 * result + (workingDirectory != null ? workingDirectory.hashCode() : 0);
+        result = 31 * result + (myWorkingDirectory != null ? myWorkingDirectory.hashCode() : 0);
         return result;
     }
 
-    private String workingDirectory;
+    @NotNull
 
-    public List<String> getMyGoals() {
+    public List<String> getGoals() {
         return myGoals;
     }
 
-    public void setMyGoals(List<String> myGoals) {
+    public void setGoals(@NotNull List<String> myGoals) {
         this.myGoals = myGoals;
     }
 
 
     public String getWorkingDirectory() {
-        return workingDirectory;
+        return myWorkingDirectory;
     }
 
     public void setWorkingDirectory(String workingDirectory) {
-        this.workingDirectory = workingDirectory;
+        this.myWorkingDirectory = workingDirectory;
     }
 }
