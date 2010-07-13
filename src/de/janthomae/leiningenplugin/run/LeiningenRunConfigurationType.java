@@ -49,7 +49,7 @@ public class LeiningenRunConfigurationType implements LocatableConfigurationType
     }
 
     public RunnerAndConfigurationSettings createConfigurationByLocation(Location location) {
-        return createRunnerAndConfigurationSettings(null, location.getProject());
+        return null;
     }
 
 

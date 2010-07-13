@@ -2,14 +2,26 @@
     <name>Leiningen</name>
     <description>This plugin integrates the Leiningen build system into IntelliJ IDEA.</description>
     <change-notes>
-        Version 0.0.1
-
-        - Initial release
-        - Leiningen needs to be installed. You can configure it's location within the plugin.
-        - You can run leiningen goals in your project.
+        <![CDATA[
+        <p>Version 0.0.2<p>
+        <ul>
+            <li>You can now open Leiningen projects directly (like you can open an IPR file)</li>
+            <li>Importing a project will now setup source, test and output path (currently limited to the defaults)</li>
+            <li>Project's name and version is extracted from the Leiningen project file</li>
+            <li>Added a quickbutton to open settings dialog.</li>
+            <li>Added icon for Leiningen projects.</li>
+            <li>Run configurations should now run properly.</li>
+        </ul>
+        <p>Version 0.0.1<p>
+        <ul>
+            <li>Initial release</li>
+            <li>Leiningen needs to be installed. You can configure it's location within the plugin.</li>
+            <li>You can run leiningen goals in your project.</li>
+        </ul>
+        ]]>
     </change-notes>
-    <version>0.0.1</version>
-    <vendor>Jan Thomä</vendor>
+    <version>0.0.2</version>
+    <vendor email="janthomae@janthomae.de">Jan Thomä</vendor>
     <idea-version since-build="93.13"/>
 
     <application-components>
@@ -21,7 +33,7 @@
             </implementation-class>
         </component>
         <component>
-            <implementation-class>de.janthomae.leiningenplugin.LeiningenProjectsManager</implementation-class>
+            <implementation-class>de.janthomae.leiningenplugin.project.LeiningenProjectsManager</implementation-class>
         </component>
 
     </project-components>
@@ -29,7 +41,7 @@
 
     <actions>
         <action id="Leiningen.RunBuild"
-                class="de.janthomae.leiningenplugin.navigator.RunBuildAction"
+                class="de.janthomae.leiningenplugin.run.RunBuildAction"
                 text="_Run Leiningen Build"
                 description="Execute selected leiningen goal"
                 icon="/actions/execute.png">
@@ -42,10 +54,25 @@
                 icon="/general/add.png">
         </action>
 
+        <action id="Leiningen.RefreshProjects"
+                class="de.janthomae.leiningenplugin.navigator.RefreshProjectsAction"
+                text="Refresh Leiningen _Projects"
+                description="Refresh all leiningen projects."
+                icon="/actions/sync.png">
+        </action>
+
+        <action id="Leiningen.ShowSettings"
+                class="de.janthomae.leiningenplugin.navigator.ShowSettingsAction" text="Leiningen Settings"
+                description="Show the Leiningen Settings page"
+                icon="/images/settings.png">
+        </action>
         <group id="Leiningen.NavigatorActionsToolbar">
+            <reference id="Leiningen.RefreshProjects"/>
+            <reference id="Leiningen.AddManagedFiles"/>
+            <separator/>
             <reference id="Leiningen.RunBuild"/>
             <separator/>
-            <reference id="Leiningen.AddManagedFiles"/>
+            <reference id="Leiningen.ShowSettings"/>            
         </group>
 
     </actions>
@@ -55,5 +82,8 @@
         <applicationConfigurable implementation="de.janthomae.leiningenplugin.settings.LeiningenSettings"/>
         <applicationService serviceInterface="de.janthomae.leiningenplugin.run.LeiningenRunnerSettings"
                             serviceImplementation="de.janthomae.leiningenplugin.run.LeiningenRunnerSettings"/>
+        <projectOpenProcessor implementation="de.janthomae.leiningenplugin.project.LeiningenProjectOpenProcessor"/>
+        <projectImportBuilder implementation="de.janthomae.leiningenplugin.project.LeiningenProjectBuilder"/>
+
     </extensions>
 </idea-plugin>

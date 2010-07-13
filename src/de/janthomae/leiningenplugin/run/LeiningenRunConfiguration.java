@@ -15,7 +15,7 @@ import com.intellij.openapi.util.WriteExternalException;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.xmlb.XmlSerializer;
-import de.janthomae.leiningenplugin.LeiningenProjectsManager;
+import de.janthomae.leiningenplugin.LeiningenConstants;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 
@@ -76,7 +76,7 @@ public class LeiningenRunConfiguration extends RunConfigurationBase
         }
         VirtualFile vf = LocalFileSystem.getInstance().findFileByPath(wd);
         if (vf != null && vf.exists()) {
-            VirtualFile vf2 = vf.findChild(LeiningenProjectsManager.PROJECT_CLJ);
+            VirtualFile vf2 = vf.findChild(LeiningenConstants.PROJECT_CLJ);
             if (vf2 == null || !vf2.isValid()) {
                 throw new RuntimeConfigurationError(
                         "There is no Leiningen project file in the selected working directory.");

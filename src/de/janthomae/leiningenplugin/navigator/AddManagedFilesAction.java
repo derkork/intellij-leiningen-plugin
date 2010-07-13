@@ -8,8 +8,8 @@ import com.intellij.openapi.fileChooser.FileChooserDialog;
 import com.intellij.openapi.fileChooser.FileChooserFactory;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
-import de.janthomae.leiningenplugin.LeiningenProject;
-import de.janthomae.leiningenplugin.LeiningenProjectsManager;
+import de.janthomae.leiningenplugin.project.LeiningenProject;
+import de.janthomae.leiningenplugin.project.LeiningenProjectsManager;
 
 /**
  * @author <a href="janthomae@janthomae.de">Jan Thom&auml;</a>
@@ -42,8 +42,8 @@ public class AddManagedFilesAction extends AnAction {
         if (files.length == 0) return;
 
         for (VirtualFile file : files) {
-            LeiningenProject leiningenProject = new LeiningenProject(file);
-            manager.addLeiningenProject(leiningenProject);
+            LeiningenProject leiningenProject = new LeiningenProject(file, theProject);
+            manager.importLeiningenProject(leiningenProject);
         }
     }
 }

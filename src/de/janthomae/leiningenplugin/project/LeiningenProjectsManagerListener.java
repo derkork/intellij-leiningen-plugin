@@ -1,4 +1,4 @@
-package de.janthomae.leiningenplugin;
+package de.janthomae.leiningenplugin.project;
 
 /**
  * @author <a href="janthomae@janthomae.de">Jan Thom&auml;</a>

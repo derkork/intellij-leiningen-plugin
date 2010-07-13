@@ -6,8 +6,8 @@ import com.intellij.ui.treeStructure.SimpleNode;
 import com.intellij.ui.treeStructure.SimpleTree;
 import com.intellij.ui.treeStructure.SimpleTreeBuilder;
 import com.intellij.ui.treeStructure.SimpleTreeStructure;
-import de.janthomae.leiningenplugin.LeiningenProject;
-import de.janthomae.leiningenplugin.LeiningenProjectsManager;
+import de.janthomae.leiningenplugin.project.LeiningenProject;
+import de.janthomae.leiningenplugin.project.LeiningenProjectsManager;
 
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;

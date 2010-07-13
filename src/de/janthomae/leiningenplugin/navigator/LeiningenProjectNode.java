@@ -2,9 +2,9 @@ package de.janthomae.leiningenplugin.navigator;
 
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.treeStructure.SimpleNode;
+import de.janthomae.leiningenplugin.LeiningenConstants;
 import de.janthomae.leiningenplugin.LeiningenIcons;
-import de.janthomae.leiningenplugin.LeiningenProject;
-import de.janthomae.leiningenplugin.LeiningenProjectsManager;
+import de.janthomae.leiningenplugin.project.LeiningenProject;
 
 /**
  * @author <a href="janthomae@janthomae.de">Jan Thom&auml;</a>
@@ -18,9 +18,9 @@ public class LeiningenProjectNode extends LeiningenNode {
         super(myRoot);
         this.myLeiningenProject = project;
         setUniformIcon(LeiningenIcons.PROJECT_ICON);
-        myChildren = new SimpleNode[LeiningenProjectsManager.GOALS.length];
-        for (int i = 0; i < LeiningenProjectsManager.GOALS.length; i++) {
-            String goal = LeiningenProjectsManager.GOALS[i];
+        myChildren = new SimpleNode[LeiningenConstants.GOALS.length];
+        for (int i = 0; i < LeiningenConstants.GOALS.length; i++) {
+            String goal = LeiningenConstants.GOALS[i];
             myChildren[i] = new LeiningenGoalNode(this, goal);
         }
     }
@@ -28,7 +28,7 @@ public class LeiningenProjectNode extends LeiningenNode {
 
     @Override
     public String getName() {
-        return myLeiningenProject.getWorkingDir();
+        return myLeiningenProject.getDisplayName();
     }
 
     @Override

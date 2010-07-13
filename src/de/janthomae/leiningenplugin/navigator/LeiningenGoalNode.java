@@ -2,7 +2,7 @@ package de.janthomae.leiningenplugin.navigator;
 
 import com.intellij.ui.treeStructure.SimpleNode;
 import de.janthomae.leiningenplugin.LeiningenIcons;
-import de.janthomae.leiningenplugin.LeiningenProject;
+import de.janthomae.leiningenplugin.project.LeiningenProject;
 
 /**
 * @author <a href="janthomae@janthomae.de">Jan Thom&auml;</a>

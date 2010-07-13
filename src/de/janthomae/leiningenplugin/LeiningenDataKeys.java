@@ -1,6 +1,7 @@
 package de.janthomae.leiningenplugin;
 
 import com.intellij.openapi.actionSystem.DataKey;
+import de.janthomae.leiningenplugin.project.LeiningenProject;
 
 import java.util.List;
 

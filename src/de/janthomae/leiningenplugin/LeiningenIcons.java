@@ -11,6 +11,6 @@ import javax.swing.*;
 public class LeiningenIcons {
 
     public static final Icon GOAL_ICON = IconLoader.getIcon("/images/phase.png");
-    public static final Icon PROJECT_ICON = IconLoader.getIcon("/images/phase.png");
+    public static final Icon PROJECT_ICON = IconLoader.getIcon("/images/project.png");
 
 }

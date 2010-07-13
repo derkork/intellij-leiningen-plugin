@@ -1,4 +1,4 @@
-package de.janthomae.leiningenplugin.navigator;
+package de.janthomae.leiningenplugin.run;
 
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -6,7 +6,7 @@ import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import de.janthomae.leiningenplugin.LeiningenDataKeys;
-import de.janthomae.leiningenplugin.LeiningenProject;
+import de.janthomae.leiningenplugin.project.LeiningenProject;
 import de.janthomae.leiningenplugin.run.LeiningenRunConfigurationType;
 import de.janthomae.leiningenplugin.run.LeiningenRunnerParameters;
 

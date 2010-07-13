@@ -1,18 +1,16 @@
-package de.janthomae.leiningenplugin;
+package de.janthomae.leiningenplugin.project;
 
 import com.intellij.ProjectTopics;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ModuleRootEvent;
 import com.intellij.openapi.roots.ModuleRootListener;
-import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.openapi.vfs.newvfs.BulkFileListener;
 import com.intellij.openapi.vfs.newvfs.events.VFileCreateEvent;
-import com.intellij.openapi.vfs.newvfs.events.VFileDeleteEvent;
 import com.intellij.openapi.vfs.newvfs.events.VFileEvent;
-import com.intellij.openapi.vfs.newvfs.events.VFileMoveEvent;
 import com.intellij.util.messages.MessageBusConnection;
 import com.intellij.util.ui.update.MergingUpdateQueue;
+import de.janthomae.leiningenplugin.LeiningenConstants;
 
 import java.util.List;
 
@@ -43,39 +41,39 @@ public class LeiningenProjectsManagerWatcher {
 
             public void after(List<? extends VFileEvent> vFileEvents) {
                 for (VFileEvent vFileEvent : vFileEvents) {
-                    if (vFileEvent instanceof VFileMoveEvent) {
-                        if (isRelevant(vFileEvent.getPath())) {
-                            LeiningenProject leiningenProject = myManager.byPath(vFileEvent.getPath());
-                            if (leiningenProject != null) {
-                                myManager.removeLeiningenProject(leiningenProject);
-                            }
-
-                            VirtualFile newProjectFile = ((VFileMoveEvent)vFileEvent).getNewParent().findFileByRelativePath(((VFileMoveEvent) vFileEvent).getFile().getName());
-                            if ( newProjectFile != null ) {
-                                LeiningenProject newProject = new LeiningenProject(newProjectFile);
-                            }
-                        }
-                    }
-                    if (vFileEvent instanceof VFileDeleteEvent) {
-                        if (isRelevant(vFileEvent.getPath())) {
-                            LeiningenProject leiningenProject = myManager.byPath(vFileEvent.getPath());
-                            if (leiningenProject != null) {
-                                myManager.removeLeiningenProject(leiningenProject);
-                            }
-                        }
-                    }
+//                    if (vFileEvent instanceof VFileMoveEvent) {
+//                        if (isRelevant(vFileEvent.getPath())) {
+//                            LeiningenProject leiningenProject = myManager.byPath(vFileEvent.getPath());
+//                            if (leiningenProject != null) {
+//                                myManager.removeLeiningenProject(leiningenProject);
+//                            }
+//
+//                            VirtualFile newProjectFile = ((VFileMoveEvent)vFileEvent).getNewParent().findFileByRelativePath(((VFileMoveEvent) vFileEvent).getFile().getName());
+//                            if ( newProjectFile != null ) {
+//                                LeiningenProject newProject = new LeiningenProject(newProjectFile, theProject);
+//                            }
+//                        }
+//                    }
+//                    if (vFileEvent instanceof VFileDeleteEvent) {
+//                        if (isRelevant(vFileEvent.getPath())) {
+//                            LeiningenProject leiningenProject = myManager.byPath(vFileEvent.getPath());
+//                            if (leiningenProject != null) {
+//                                myManager.removeLeiningenProject(leiningenProject);
+//                            }
+//                        }
+//                    }
                     if (vFileEvent instanceof VFileCreateEvent) {
                         if (isRelevant(vFileEvent.getPath())) {
                             LeiningenProject leiningenProject = new LeiningenProject(
-                                    vFileEvent.getFileSystem().findFileByPath(vFileEvent.getPath()));
-                            myManager.addLeiningenProject(leiningenProject);
+                                    vFileEvent.getFileSystem().findFileByPath(vFileEvent.getPath()), myProject);
+                            myManager.importLeiningenProject(leiningenProject);
                         }
                     }
                 }
             }
 
             private boolean isRelevant(String path) {
-                return path != null && path.endsWith(LeiningenProjectsManager.PROJECT_CLJ);
+                return path != null && path.endsWith(LeiningenConstants.PROJECT_CLJ);
             }
         });
 

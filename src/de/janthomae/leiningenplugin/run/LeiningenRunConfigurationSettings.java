@@ -9,7 +9,7 @@ import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.ui.TextFieldWithAutoCompletion;
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
-import de.janthomae.leiningenplugin.LeiningenProjectsManager;
+import de.janthomae.leiningenplugin.LeiningenConstants;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
@@ -52,7 +52,7 @@ public class LeiningenRunConfigurationSettings extends SettingsEditor<LeiningenR
         configurationPanel.add(this.wdSelector, c.xy(1, 2));
         configurationPanel.add(new JLabel("Goals to run (separate with space)"), c.xy(1, 4));
         this.goals = new TextFieldWithAutoCompletion(myProject);
-        this.goals.setVariants(LeiningenProjectsManager.GOALS);
+        this.goals.setVariants(LeiningenConstants.GOALS);
         configurationPanel.add(this.goals, c.xy(1, 5));
         return configurationPanel;
     }

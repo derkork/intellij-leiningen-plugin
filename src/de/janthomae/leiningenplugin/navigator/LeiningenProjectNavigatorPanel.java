@@ -6,7 +6,7 @@ import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.treeStructure.SimpleTree;
 import de.janthomae.leiningenplugin.LeiningenDataKeys;
-import de.janthomae.leiningenplugin.LeiningenProject;
+import de.janthomae.leiningenplugin.project.LeiningenProject;
 import org.jetbrains.annotations.NonNls;
 
 import javax.swing.*;

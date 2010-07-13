@@ -1,14 +1,18 @@
 package de.janthomae.leiningenplugin.navigator;
 
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowAnchor;
 import com.intellij.openapi.wm.ex.ToolWindowManagerAdapter;
 import com.intellij.openapi.wm.ex.ToolWindowManagerEx;
 import com.intellij.ui.treeStructure.SimpleTree;
-import de.janthomae.leiningenplugin.LeiningenProjectsManager;
-import de.janthomae.leiningenplugin.LeiningenProjectsManagerListener;
+import de.janthomae.leiningenplugin.LeiningenIcons;
+import de.janthomae.leiningenplugin.LeiningenUtil;
 import de.janthomae.leiningenplugin.SimpleProjectComponent;
+import de.janthomae.leiningenplugin.project.LeiningenProjectsManager;
+import de.janthomae.leiningenplugin.project.LeiningenProjectsManagerListener;
 
 import javax.swing.*;
 import java.awt.*;
@@ -34,7 +38,7 @@ public class LeiningenProjectNavigator extends SimpleProjectComponent {
     @Override
     public void initComponent() {
         if (!isNormalProject()) return;
-        runWhenInitialized(myProject, new Runnable() {
+        LeiningenUtil.runWhenInitialized(myProject, new Runnable() {
             public void run() {
                 addPanel();
                 myProjectsManager.addProjectsManagerListener(new LeiningenProjectsManagerListener() {
@@ -54,6 +58,7 @@ public class LeiningenProjectNavigator extends SimpleProjectComponent {
         JPanel panel = new LeiningenProjectNavigatorPanel(myProject, myTree);
         final ToolWindowManagerEx manager = ToolWindowManagerEx.getInstanceEx(myProject);
         myToolWindow = manager.registerToolWindow(TOOL_WINDOW_ID, panel, ToolWindowAnchor.RIGHT, myProject, true);
+        myToolWindow.setIcon(LeiningenIcons.PROJECT_ICON);
         final ToolWindowManagerAdapter listener = new ToolWindowManagerAdapter() {
             boolean wasVisible = false;
 
@@ -67,11 +72,16 @@ public class LeiningenProjectNavigator extends SimpleProjectComponent {
             }
         };
         manager.addToolWindowManagerListener(listener);
+        Disposer.register(myProject, new Disposable() {
+            public void dispose() {
+                manager.removeToolWindowManagerListener(listener);
+            }
+        });
         scheduleStructureUpdate();
     }
 
     private void scheduleStructureUpdate() {
-        invokeLater(myProject, new Runnable() {
+        LeiningenUtil.invokeLater(myProject, new Runnable() {
             public void run() {
                 myStructure.update();
             }
