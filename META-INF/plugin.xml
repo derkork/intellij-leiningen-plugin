@@ -3,6 +3,10 @@
     <description>This plugin integrates the Leiningen build system into IntelliJ IDEA.</description>
     <change-notes>
         <![CDATA[
+        <p>Version 0.0.3<p>
+        <ul>
+            <li>Added the missing "test" target.</li>
+        </ul>
         <p>Version 0.0.2<p>
         <ul>
             <li>You can now open Leiningen projects directly (like you can open an IPR file)</li>
@@ -20,7 +24,7 @@
         </ul>
         ]]>
     </change-notes>
-    <version>0.0.2</version>
+    <version>0.0.3</version>
     <vendor email="janthomae@janthomae.de">Jan Thomä</vendor>
     <idea-version since-build="93.13"/>
 

@@ -6,6 +6,6 @@ package de.janthomae.leiningenplugin;
  */
 public interface LeiningenConstants {
     String[] GOALS = new String[]{
-            "pom", "help", "upgrade", "install", "jar", "deps", "uberjar", "clean", "compile", "version"};
+            "pom", "help", "upgrade", "install", "jar", "deps", "uberjar", "test", "clean", "compile", "version"};
     String PROJECT_CLJ = "project.clj";
 }
