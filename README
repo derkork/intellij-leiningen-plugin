@@ -1,4 +1,26 @@
-The IntelliJ Leiningen Plugin
-================================
+h1.The IntelliJ Leiningen Plugin
 
-This plugin integrates Leiningen into IntelliJ.
+This plugin integrates Leiningen into IntelliJ. It is supposed to work with both the Ultimate and Community Edition
+of IntelliJ.
+
+h2.Usage
+
+Install the plugin via the plugin manager of IntelliJ. Then go to Settings > Leiningen and set up the location of
+Leiningen. Now you can run Leiningen targets in the Leiningen tool window on the right side of the IntelliJ main
+window by doubleclicking on the target name.
+
+When you open a project that is having a project.clj file in it's root, it is automatically added to the list of
+Leiningen projects in the Leiningen tool window. If you have multiple project.clj in your project tree (e.g. a
+project with subprojects) you can add these manually by pressing the plus icon in the Leiningen tool window.
+
+h2.Compiling the source code
+
+Grab the latest version from http://github.com/derkork/intellij-leiningen-plugin. Open the leiningen-plugin.ipr file in
+IntelliJ. To build the plugin you need to set up an IntelliJ SDK. I suggest using an IntelliJ Community Edition as SDK
+base, to ensure that the plugin will run on the Community Edition as well. You can then select the Run Leiningen Plugin
+run configuration to test your changes. To build a deployable Jar file, select Build -> Prepare plugin-module
+"leiningen-plugin" for deployment. This will create a Jar file that you can deploy into you IntelliJ plugins folder.
+
+h2.Submitting patches
+
+Patches can be submitted via email to janthomae at janthomae dot de.
