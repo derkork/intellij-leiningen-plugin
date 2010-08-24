@@ -15,6 +15,7 @@ import com.intellij.openapi.roots.ModifiableRootModel;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.VirtualFile;
+import de.janthomae.leiningenplugin.leiningen.LeiningenProjectFile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -73,6 +74,7 @@ public class LeiningenProject {
     // TODO: this is quite a hack...
 
     public static String[] nameAndVersionFromProjectFile(VirtualFile projectFile) {
+        LeiningenProjectFile lpf = new LeiningenProjectFile();
         String myName = projectFile.getParent().getPath();
         String myVersion = null;
         try {
@@ -82,6 +84,7 @@ public class LeiningenProject {
             if (matcher.find()) {
                 myName = matcher.group(1);
                 myVersion = matcher.group(2);
+                
             }
 
         } catch (IOException e) {

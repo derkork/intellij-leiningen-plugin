@@ -1,6 +1,7 @@
 (ns de.janthomae.leiningenplugin.leiningen.LeiningenProjectFile
-  (:gen-class))
+  (:gen-class
+    :prefix lpf-
+    :methods [[hello [String] String]]))
 
-(defn hello
-  [this]
-  "Hello, World!")
+(defn lpf-hello [this msg]
+  (str "Hello, World to " msg "!"))

@@ -17,9 +17,15 @@ h2. Compiling the source code
 
 Grab the latest version from http://github.com/derkork/intellij-leiningen-plugin. Open the leiningen-plugin.ipr file in
 IntelliJ. To build the plugin you need to set up an IntelliJ SDK. I suggest using an IntelliJ Community Edition as SDK
-base, to ensure that the plugin will run on the Community Edition as well. You can then select the Run Leiningen Plugin
-run configuration to test your changes. To build a deployable Jar file, select Build -> Prepare plugin-module
-"leiningen-plugin" for deployment. This will create a Jar file that you can deploy into you IntelliJ plugins folder.
+base, to ensure that the plugin will run on the Community Edition as well.
+
+Next you need to build the leiningen interop library which is written in Clojure. To do that, run lein jar in the projects
+ root folder. You can use the leiningen plugin for this if you have installed it, otherwise you need to do it at the
+ command line.
+
+You can then select the Run Leiningen Plugin  run configuration to test your changes. To build a deployable Jar file,
+select Build -> Prepare plugin-module "leiningen-plugin" for deployment. This will create a Jar file that you can deploy
+into you IntelliJ plugins folder.
 
 h2. Submitting patches
 
