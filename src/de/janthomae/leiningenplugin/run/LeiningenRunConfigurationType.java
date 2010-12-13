@@ -6,7 +6,6 @@ import com.intellij.execution.configurations.ConfigurationFactory;
 import com.intellij.execution.configurations.ConfigurationTypeUtil;
 import com.intellij.execution.configurations.RunConfiguration;
 import com.intellij.execution.executors.DefaultRunExecutor;
-import com.intellij.execution.impl.RunnerAndConfigurationSettingsImpl;
 import com.intellij.execution.process.ProcessAdapter;
 import com.intellij.execution.process.ProcessEvent;
 import com.intellij.execution.process.ProcessHandler;
@@ -112,7 +111,7 @@ public class LeiningenRunConfigurationType implements LocatableConfigurationType
         LeiningenRunConfigurationType type =
                 ConfigurationTypeUtil.findConfigurationType(LeiningenRunConfigurationType.class);
 
-        final RunnerAndConfigurationSettingsImpl settings =
+        final RunnerAndConfigurationSettings settings =
                 RunManagerEx.getInstanceEx(project).createConfiguration("Leiningen", type.myFactory);
         LeiningenRunConfiguration configuration = (LeiningenRunConfiguration) settings.getConfiguration();
         configuration.setRunnerParams(params);

@@ -26,7 +26,7 @@
     </change-notes>
     <version>0.0.3</version>
     <vendor email="janthomae@janthomae.de" url="http://github.com/derkork/intellij-leiningen-plugin">Jan Thomä</vendor>
-    <idea-version since-build="93.13"/>
+    <idea-version since-build="99.000" until-build="99.9999"/>
 
     <application-components>
     </application-components>
