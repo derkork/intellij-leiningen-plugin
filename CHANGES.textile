@@ -1,9 +1,23 @@
 h1. The IntelliJ Leiningen Plugin - Changes
 
 h2. Version 0.1.1
-
 * Fixed compatibility issues with IDEA 10.0.2.
 
 h2. Version 0.1.0
+* Fixed compatibility with IDEA 10.
 
-* Initial version.
+h2. Version 0.0.3
+* Added the missing "test" target.
+
+h2. Version 0.0.2
+* You can now open Leiningen projects directly (like you can open an IPR file)
+* Importing a project will now setup source, test and output path (currently limited to the defaults)
+* Project's name and version is extracted from the Leiningen project file
+* Added a quickbutton to open settings dialog.
+* Added icon for Leiningen projects.
+* Run configurations should now run properly.
+
+h2. Version 0.0.1
+* Initial release
+* Leiningen needs to be installed. You can configure it's location within the plugin.
+* You can run leiningen goals in your project.

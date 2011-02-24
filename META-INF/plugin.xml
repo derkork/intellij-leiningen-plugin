@@ -3,6 +3,12 @@
     <description>This plugin integrates the Leiningen build system into IntelliJ IDEA.</description>
     <change-notes>
         <![CDATA[
+
+
+        <p>Version 0.1.1<p>
+        <ul>
+            <li>Made plugin compatible with IntelliJ 10.0.2</li>
+        </ul>
         <p>Version 0.1.0<p>
         <ul>
             <li>Made plugin compatible with IntelliJ 10.</li>
