@@ -12,6 +12,6 @@ public class LeiningenProjectFileTest {
     public void testLoadFile() {
         LeiningenProjectFile lpf = new LeiningenProjectFile("project.clj");
         String name = lpf.getName();
-        Assert.assertEquals("Name was wrong", name, "de.janthomae/leiningenplugin");
+        Assert.assertEquals("Name was wrong", "de.janthomae/leiningenplugin", name);
     }
 }
