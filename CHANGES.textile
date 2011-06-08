@@ -1,6 +1,9 @@
 h1. The IntelliJ Leiningen Plugin - Changes
 
 h2. Version 0.1.1
+* Fixed compatibility issues with IDEA 10.5.
+
+h2. Version 0.1.1
 * Fixed compatibility issues with IDEA 10.0.2.
 
 h2. Version 0.1.0
