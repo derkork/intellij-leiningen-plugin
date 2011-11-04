@@ -22,8 +22,8 @@ import java.util.List;
  */
 @State(name = "LeiningenProjectsManager", storages = {@Storage(id = "default", file = "$PROJECT_FILE$")})
 public class LeiningenProjectsManager extends  SimpleProjectComponent implements PersistentStateComponent<LeiningenProjectsManagerState> {
-    private List<LeiningenProject> myLeiningenProjects = new ArrayList<LeiningenProject>();
-    private LeiningenProjectsManagerWatcher myWatcher;
+    private List<LeiningenProject> leiningenProjects = new ArrayList<LeiningenProject>();
+    private LeiningenProjectsManagerWatcher watcher;
     private List<LeiningenProjectsManagerListener> listeners = new ArrayList<LeiningenProjectsManagerListener>();
 
     public static LeiningenProjectsManager getInstance(Project p) {
@@ -43,8 +43,8 @@ public class LeiningenProjectsManager extends  SimpleProjectComponent implements
     public void initComponent() {
         LeiningenUtil.runWhenInitialized(myProject, new Runnable() {
             public void run() {
-                myWatcher = new LeiningenProjectsManagerWatcher(myProject, LeiningenProjectsManager.this);
-                myWatcher.start();
+                watcher = new LeiningenProjectsManagerWatcher(myProject, LeiningenProjectsManager.this);
+                watcher.start();
             }
         });
     }
@@ -54,16 +54,16 @@ public class LeiningenProjectsManager extends  SimpleProjectComponent implements
     }
 
     public LeiningenProject byPath(String path) {
-        for (LeiningenProject myLeiningenProject : myLeiningenProjects) {
-            if (myLeiningenProject.getVirtualFile().getPath().equals(path)) {
-                return myLeiningenProject;
+        for (LeiningenProject leiningenProject : leiningenProjects) {
+            if (leiningenProject.getVirtualFile().getPath().equals(path)) {
+                return leiningenProject;
             }
         }
         return null;
     }
 
     public boolean hasProjects() {
-        return !myLeiningenProjects.isEmpty();
+        return !leiningenProjects.isEmpty();
     }
 
     public List<Module> importLeiningenProject(LeiningenProject project) {
@@ -76,16 +76,16 @@ public class LeiningenProjectsManager extends  SimpleProjectComponent implements
     }
 
     public boolean hasProject(LeiningenProject project) {
-        return myLeiningenProjects.contains(project);
+        return leiningenProjects.contains(project);
     }
 
     private void addLeiningenProject(LeiningenProject leiningenProject) {
-        myLeiningenProjects.add(leiningenProject);
+        leiningenProjects.add(leiningenProject);
         notifyListeners();
     }
 
     public boolean isManagedFile(VirtualFile file) {
-        for (LeiningenProject myLeiningenProject : myLeiningenProjects) {
+        for (LeiningenProject myLeiningenProject : leiningenProjects) {
             if (myLeiningenProject.getVirtualFile().equals(file)) {
                 return true;
             }
@@ -98,11 +98,11 @@ public class LeiningenProjectsManager extends  SimpleProjectComponent implements
     }
 
     public List<LeiningenProject> getLeiningenProjects() {
-        return myLeiningenProjects;
+        return leiningenProjects;
     }
 
     private void findProjectFiles() {
-        myLeiningenProjects.clear();
+        leiningenProjects.clear();
         VirtualFile projectFile = myProject.getBaseDir().findChild(LeiningenConstants.PROJECT_CLJ);
         if (projectFile != null) {
             addLeiningenProject(new LeiningenProject(projectFile, myProject));
@@ -110,7 +110,7 @@ public class LeiningenProjectsManager extends  SimpleProjectComponent implements
     }
 
     private void removeLeiningenProject(LeiningenProject leiningenProject) {
-        myLeiningenProjects.remove(leiningenProject);
+        leiningenProjects.remove(leiningenProject);
         notifyListeners();
     }
 
@@ -122,7 +122,7 @@ public class LeiningenProjectsManager extends  SimpleProjectComponent implements
 
     public LeiningenProjectsManagerState getState() {
         LeiningenProjectsManagerState state = new LeiningenProjectsManagerState();
-        for (LeiningenProject leiningenProject : myLeiningenProjects) {
+        for (LeiningenProject leiningenProject : leiningenProjects) {
             state.projectFiles.add(leiningenProject.getVirtualFile().getUrl());
         }
         return state;

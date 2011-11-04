@@ -162,7 +162,6 @@
     <option name="projectFiles">
       <list>
         <option value="file://$PROJECT_DIR$/project.clj" />
-        <option value="file://$PROJECT_DIR$/project.clj" />
       </list>
     </option>
   </component>

@@ -11,7 +11,8 @@
               [getCompilePath [] String]
               [getLibraryPath [] String]
               [getTargetDir [] String]
-              [getProjectFile [] String]]
+              [getProjectFile [] String]
+              [isValid [] Boolean]]
     :constructors {[String] []}
     :state state))
 
@@ -33,7 +34,11 @@
 ;; Class interface
 
 (defn -init [file]
-  [[] (atom [(read-project file) file])])
+  (let [p (read-project file)]
+    [[] (atom [p file])]))
+
+(defn -isValid [this]
+  (not (nil? (project this))))
 
 (defn -getName [this]
   (name (:name (project this))))

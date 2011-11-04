@@ -14,26 +14,38 @@ import com.intellij.openapi.roots.ContentEntry;
 import com.intellij.openapi.roots.ModifiableRootModel;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.util.io.FileUtil;
+import com.intellij.openapi.vcs.ui.VcsBalloonProblemNotifier;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.wm.WindowManager;
 import de.janthomae.leiningenplugin.leiningen.LeiningenProjectFile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
+ * Representation of Leiningen project in this plugin.
+ *
  * @author <a href="janthomae@janthomae.de">Jan Thom&auml;</a>
+ * @author Vladimir Matveev
+ *
  * @version $Id:$
  */
 public class LeiningenProject {
-
-    private String workingDir;
     private final VirtualFile projectFile;
     private final Project project;
+
+    private String workingDir;
     private String name;
+    private String namespace;
     private String version;
-    private Module myModule;
+    private Module module;
+    private LeiningenProjectFile leiningenProjectFile;
 
     public LeiningenProject(VirtualFile projectFile, Project project) {
         this.projectFile = projectFile;
@@ -63,20 +75,24 @@ public class LeiningenProject {
     }
 
     private void refreshDataFromFile() {
-        String[] values = nameAndVersionFromProjectFile(projectFile);
-        name = values[0];
-        version = values[1];
+        // Dirty hack to make clojure work in plugin environment
+        Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
+        // Reload project.clj
+        leiningenProjectFile = new LeiningenProjectFile(projectFile.getPath());
+        name = leiningenProjectFile.getName();
+        namespace = leiningenProjectFile.getNamespace();
+        version = leiningenProjectFile.getVersion();
     }
 
     public static String[] nameAndVersionFromProjectFile(VirtualFile projectFile) {
-        LeiningenProjectFile lpf = new LeiningenProjectFile(projectFile.getName());
+        LeiningenProjectFile lpf = new LeiningenProjectFile(projectFile.getPath());
         String myName = lpf.getName();
         String myVersion = lpf.getVersion();
         return new String[]{myName, myVersion};
     }
 
     public String getDisplayName() {
-        return name + (version != null ? ":" + version : "");
+        return namespace + "/" + name + (version != null ? ":" + version : "");
     }
 
     @Override
@@ -91,36 +107,38 @@ public class LeiningenProject {
     }
 
     public Module getManagedModule() {
-        return myModule;
+        return module;
     }
 
     public Module reimport() {
         refreshDataFromFile();
-        myModule = null;
+        module = null;
+
         // find a matching module
-        final ModifiableModuleModel moduleModel = doGetModuleModel();
+        final ModifiableModuleModel moduleModel = getModuleModel();
+
         for (Module module : moduleModel.getModules()) {
-            ModifiableRootModel rootModel = doGetRootModel(module);
+            ModifiableRootModel rootModel = getRootModel(module);
             final VirtualFile[] contentRoots = rootModel.getContentRoots();
             for (VirtualFile contentRoot : contentRoots) {
                 if (contentRoot.getPath().equals(workingDir)) {
-                    myModule = module;
+                    this.module = module;
                     break;
                 }
             }
-            if (myModule != null) {
+            if (this.module != null) {
                 break;
             }
         }
 
-        if (myModule == null) {
+        if (module == null) {
             // oh-kay we don't have a module yet.
-            myModule = moduleModel.newModule(workingDir + File.separator + FileUtil.sanitizeFileName(name) +
+            module = moduleModel.newModule(workingDir + File.separator + FileUtil.sanitizeFileName(name) +
                     ModuleFileType.DOT_DEFAULT_EXTENSION, StdModuleTypes.JAVA);
         }
 
-        // now set up the source paths
-        final ModifiableRootModel rootModel = doGetRootModel(myModule);
+        // now set up different paths
+        final ModifiableRootModel rootModel = getRootModel(module);
         rootModel.inheritSdk();
         final ContentEntry contentEntry = rootModel.addContentEntry(projectFile.getParent());
 
@@ -129,17 +147,18 @@ public class LeiningenProject {
         if (sourcePath != null) {
             contentEntry.addSourceFolder(sourcePath, false);
         }
+
         final VirtualFile testSourcePath = getTestSourcePath();
         if (testSourcePath != null) {
             contentEntry.addSourceFolder(testSourcePath, true);
         }
-        final VirtualFile resourcesPath = getResourcesPath();
 
+        final VirtualFile resourcesPath = getResourcesPath();
         if (resourcesPath != null) {
             contentEntry.addSourceFolder(resourcesPath, false);
         }
-        VirtualFile outputPath = createOrGetOutputPath();
 
+        VirtualFile outputPath = createOrGetOutputPath();
         if (outputPath != null) {
             final CompilerModuleExtension extension = rootModel.getModuleExtension(CompilerModuleExtension.class);
 
@@ -147,6 +166,7 @@ public class LeiningenProject {
             extension.setCompilerOutputPath(outputPath);
             extension.setCompilerOutputPathForTests(outputPath);
         }
+
         new WriteAction() {
             @Override
             protected void run(Result result) throws Throwable {
@@ -154,21 +174,38 @@ public class LeiningenProject {
                 moduleModel.commit();
             }
         }.execute();
-        return myModule;
+        return module;
     }
 
     @Nullable
     private VirtualFile createOrGetOutputPath() {
-        final String classes = "classes";
-        final VirtualFile outputPath = projectFile.getParent().findChild(classes);
+        final String compilePath = leiningenProjectFile.getCompilePath();
+        final VirtualFile projectDirectory = projectFile.getParent();
+        final VirtualFile outputPath = projectDirectory.findFileByRelativePath(compilePath);
         if (outputPath != null) {
             return outputPath;
         }
         return new WriteAction<VirtualFile>() {
+            private List<String> splitDirectories(String directory) {
+                LinkedList<String> directories = new LinkedList<String>();
+                File current = new File(directory);
+                while (current != null) {
+                    directories.addFirst(current.getName());
+                    current = current.getParentFile();
+                }
+                return directories;
+            }
+
             @Override
             public void run(Result<VirtualFile> result) {
                 try {
-                    result.setResult(projectFile.getParent().createChildDirectory(this, classes));
+                    List<String> directories = splitDirectories(compilePath);
+                    VirtualFile lastDirectory = projectDirectory;
+                    for (String directory : directories)
+                        lastDirectory = lastDirectory.createChildDirectory(this, directory);
+                    if (lastDirectory == projectDirectory)
+                        lastDirectory = null;
+                    result.setResult(lastDirectory);
                 } catch (IOException e) {
                     result.setResult(null);
                 }
@@ -180,20 +217,20 @@ public class LeiningenProject {
 
     @Nullable
     private VirtualFile getResourcesPath() {
-        return projectFile.getParent().findChild("resources");
+        return projectFile.getParent().findChild(leiningenProjectFile.getResourcesPath());
     }
 
     @Nullable
     private VirtualFile getTestSourcePath() {
-        return projectFile.getParent().findChild("test");
+        return projectFile.getParent().findChild(leiningenProjectFile.getTestPath());
     }
 
     @Nullable
     private VirtualFile getSourcePath() {
-        return projectFile.getParent().findChild("src");
+        return projectFile.getParent().findChild(leiningenProjectFile.getSourcePath());
     }
 
-    protected ModifiableModuleModel doGetModuleModel() {
+    protected ModifiableModuleModel getModuleModel() {
         return new ReadAction<ModifiableModuleModel>() {
             protected void run(Result<ModifiableModuleModel> result) throws Throwable {
                 result.setResult(ModuleManager.getInstance(project).getModifiableModel());
@@ -201,7 +238,7 @@ public class LeiningenProject {
         }.execute().getResultObject();
     }
 
-    protected ModifiableRootModel doGetRootModel(final Module module) {
+    protected ModifiableRootModel getRootModel(final Module module) {
         return new ReadAction<ModifiableRootModel>() {
             protected void run(Result<ModifiableRootModel> result) throws Throwable {
                 result.setResult(ModuleRootManager.getInstance(module).getModifiableModel());
