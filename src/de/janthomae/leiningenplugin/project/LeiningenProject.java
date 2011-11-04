@@ -15,13 +15,12 @@ import com.intellij.openapi.roots.ModifiableRootModel;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.VirtualFile;
+import de.janthomae.leiningenplugin.leiningen.LeiningenProjectFile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * @author <a href="janthomae@janthomae.de">Jan Thom&auml;</a>
@@ -29,82 +28,66 @@ import java.util.regex.Pattern;
  */
 public class LeiningenProject {
 
-    private String myWorkingDir;
-    private final VirtualFile myProjectFile;
-    private final Project myProject;
-    private static final Pattern ProjectNamePattern = Pattern.compile("defproject\\s+([^\\s]+)\\s+\"([^\"]+)\"");
-    private String myName;
-    private String myVersion;
+    private String workingDir;
+    private final VirtualFile projectFile;
+    private final Project project;
+    private String name;
+    private String version;
     private Module myModule;
 
     public LeiningenProject(VirtualFile projectFile, Project project) {
-        myProjectFile = projectFile;
-        myProject = project;
-        this.myWorkingDir = projectFile.getParent().getPath();
+        this.projectFile = projectFile;
+        this.project = project;
+        this.workingDir = projectFile.getParent().getPath();
         refreshDataFromFile();
     }
 
     public String getWorkingDir() {
-        return myWorkingDir;
+        return workingDir;
     }
 
 
     public VirtualFile getVirtualFile() {
-        return myProjectFile;
+        return projectFile;
     }
 
 
     @NotNull
     public String getName() {
-        return myName;
+        return name;
     }
 
     @Nullable
     public String getVersion() {
-        return myVersion;
+        return version;
     }
 
     private void refreshDataFromFile() {
-        String[] values = nameAndVersionFromProjectFile(myProjectFile);
-        myName = values[0];
-        myVersion = values[1];
+        String[] values = nameAndVersionFromProjectFile(projectFile);
+        name = values[0];
+        version = values[1];
     }
 
-    // TODO: this is quite a hack...
-
     public static String[] nameAndVersionFromProjectFile(VirtualFile projectFile) {
-        //LeiningenProjectFile lpf = new LeiningenProjectFile();
-        String myName = projectFile.getParent().getPath();
-        String myVersion = null;
-        try {
-            String string = new String(projectFile.contentsToByteArray());
-
-            final Matcher matcher = ProjectNamePattern.matcher(string);
-            if (matcher.find()) {
-                myName = matcher.group(1);
-                myVersion = matcher.group(2);
-                
-            }
-
-        } catch (IOException e) {
-            // ok.
-        }
+        LeiningenProjectFile lpf = new LeiningenProjectFile(projectFile.getName());
+        String myName = lpf.getName();
+        String myVersion = lpf.getVersion();
         return new String[]{myName, myVersion};
     }
 
     public String getDisplayName() {
-        return myName + (myVersion != null ? ":" + myVersion : "");
+        return name + (version != null ? ":" + version : "");
     }
 
     @Override
     public boolean equals(Object obj) {
         return obj != null && obj instanceof LeiningenProject &&
-                ((LeiningenProject) obj).myProjectFile.equals(myProjectFile);
+                ((LeiningenProject) obj).projectFile.equals(projectFile);
     }
 
     @Override
     public int hashCode() {
-        return myProjectFile.getPath().hashCode();
+        return projectFile.getPath().hashCode();
     }
 
     public Module getManagedModule() {
@@ -120,7 +103,7 @@ public class LeiningenProject {
             ModifiableRootModel rootModel = doGetRootModel(module);
             final VirtualFile[] contentRoots = rootModel.getContentRoots();
             for (VirtualFile contentRoot : contentRoots) {
-                if (contentRoot.getPath().equals(myWorkingDir)) {
+                if (contentRoot.getPath().equals(workingDir)) {
                     myModule = module;
                     break;
                 }
@@ -132,14 +115,14 @@ public class LeiningenProject {
 
         if (myModule == null) {
             // oh-kay we don't have a module yet.
-            myModule = moduleModel.newModule(myWorkingDir + File.separator + FileUtil.sanitizeFileName(myName) +
+            myModule = moduleModel.newModule(workingDir + File.separator + FileUtil.sanitizeFileName(name) +
                     ModuleFileType.DOT_DEFAULT_EXTENSION, StdModuleTypes.JAVA);
         }
 
         // now set up the source paths
         final ModifiableRootModel rootModel = doGetRootModel(myModule);
         rootModel.inheritSdk();
-        final ContentEntry contentEntry = rootModel.addContentEntry(myProjectFile.getParent());
+        final ContentEntry contentEntry = rootModel.addContentEntry(projectFile.getParent());
 
 
         final VirtualFile sourcePath = getSourcePath();
@@ -177,7 +160,7 @@ public class LeiningenProject {
     @Nullable
     private VirtualFile createOrGetOutputPath() {
         final String classes = "classes";
-        final VirtualFile outputPath = myProjectFile.getParent().findChild(classes);
+        final VirtualFile outputPath = projectFile.getParent().findChild(classes);
         if (outputPath != null) {
             return outputPath;
         }
@@ -185,7 +168,7 @@ public class LeiningenProject {
             @Override
             public void run(Result<VirtualFile> result) {
                 try {
-                    result.setResult(myProjectFile.getParent().createChildDirectory(this, classes));
+                    result.setResult(projectFile.getParent().createChildDirectory(this, classes));
                 } catch (IOException e) {
                     result.setResult(null);
                 }
@@ -197,23 +180,23 @@ public class LeiningenProject {
 
     @Nullable
     private VirtualFile getResourcesPath() {
-        return myProjectFile.getParent().findChild("resources");
+        return projectFile.getParent().findChild("resources");
     }
 
     @Nullable
     private VirtualFile getTestSourcePath() {
-        return myProjectFile.getParent().findChild("test");
+        return projectFile.getParent().findChild("test");
     }
 
     @Nullable
     private VirtualFile getSourcePath() {
-        return myProjectFile.getParent().findChild("src");
+        return projectFile.getParent().findChild("src");
     }
 
     protected ModifiableModuleModel doGetModuleModel() {
         return new ReadAction<ModifiableModuleModel>() {
             protected void run(Result<ModifiableModuleModel> result) throws Throwable {
-                result.setResult(ModuleManager.getInstance(myProject).getModifiableModel());
+                result.setResult(ModuleManager.getInstance(project).getModifiableModel());
             }
         }.execute().getResultObject();
     }

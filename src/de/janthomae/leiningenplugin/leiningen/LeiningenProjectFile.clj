@@ -2,52 +2,68 @@
   (:import [java.io File])
   (:gen-class
     :init init
-    :prefix -
-    :methods [[getName [] String]]
+    :methods [[getName [] String]
+              [getNamespace [] String]
+              [getVersion [] String]
+              [getSourcePath [] String]
+              [getTestPath [] String]
+              [getResourcesPath [] String]
+              [getCompilePath [] String]
+              [getLibraryPath [] String]
+              [getTargetDir [] String]
+              [getProjectFile [] String]]
     :constructors {[String] []}
-  ))
+    :state state))
 
-(def project nil)
+;; Internal functions
 
 (defmacro defproject [project-name version & args]
-  ;; This is necessary since we must allow defproject to be eval'd in
-  ;; any namespace due to load-file; we can't just create a var with
-  ;; def or we would not have access to it once load-file returned.
-  `(do
-     (let [m# (apply hash-map (quote ~args))
-           root# ~(.getParent (java.io.File. *file*))]
-;       (alter-var-root #'project
-;                       (fn [_#] (assoc m#
-;                                  :name ~(name project-name)
-;                                  :group ~(or (namespace project-name)
-;                                              (name project-name))
-;                                  :version ~version
-;                                  :compile-path (or (:compile-path m#)
-;                                                    (str root# "/classes"))
-;                                  :source-path (or (:source-path m#)
-;                                                   (str root# "/src"))
-;                                  :library-path (or (:library-path m#)
-;                                                    (str root# "/lib"))
-;                                  :test-path (or (:test-path m#)
-;                                                 (str root# "/test"))
-;                                  :resources-path (or (:resources-path m#)
-;                                                      (str root# "/resources"))
-;                                  :root root#))))
-;     (def ~(symbol (name project-name)) project)))
-)))
+  `(apply hash-map :name (quote ~project-name) :version ~version (quote ~args)))
+
+(defn project [this]
+  (first @(.state this)))
+
+(defn project-path [this]
+  (second @(.state this)))
 
 (defn read-project [file]
   (binding [*ns* (the-ns 'de.janthomae.leiningenplugin.leiningen.LeiningenProjectFile)]
-  (load-file file))
-)
+    (load-file file)))
+
+;; Class interface
 
 (defn -init [file]
-   (read-project file))
+  [[] (atom [(read-project file) file])])
 
 (defn -getName [this]
-    (:name project)
-  )
+  (name (:name (project this))))
 
+(defn -getNamespace [this]
+  (namespace (:name (project this))))
 
+(defn -getVersion [this]
+  (:version (project this)))
+
+(defn -getSourcePath [this]
+  (:source-path (project this) "src"))
+
+(defn -getTestPath [this]
+  (:test-path (project this) "test"))
+
+(defn -getResourcesPath [this]
+  (:resources-path (project this) "resources"))
+
+(defn -getCompilePath [this]
+  (:compile-path (project this) "classes"))
+
+(defn -getLibraryPath [this]
+  (:library-path (project this) "lib"))
+
+(defn -getTargetDir [this]
+  (let [p (project this)]
+    (:target-dir p (:jar-dir p ""))))
+
+(defn -getProjectFile [this]
+  (project-path this))
 
 
