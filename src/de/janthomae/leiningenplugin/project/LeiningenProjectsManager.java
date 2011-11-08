@@ -66,12 +66,21 @@ public class LeiningenProjectsManager extends  SimpleProjectComponent implements
         return !leiningenProjects.isEmpty();
     }
 
-    public List<Module> importLeiningenProject(LeiningenProject project) {
+    public List<Module> importLeiningenProject(VirtualFile projectFile, Project project) {
         List<Module> result = new ArrayList<Module>();
-        result.add(project.reimport());
-        if ( !hasProject( project) ) {
-            addLeiningenProject(project);
+        LeiningenProject leiningenProject = null;
+
+        try {
+            leiningenProject = LeiningenProject.create(projectFile, project);
+            Module m = leiningenProject.reimport();
+
+            if ( !hasProject( leiningenProject) ) {
+                addLeiningenProject(leiningenProject);
+            }
+        } catch (LeiningenProjectException e) {
+            // Just do nothing for now
         }
+
         return result;
     }
 
@@ -101,13 +110,13 @@ public class LeiningenProjectsManager extends  SimpleProjectComponent implements
         return leiningenProjects;
     }
 
-    private void findProjectFiles() {
-        leiningenProjects.clear();
-        VirtualFile projectFile = myProject.getBaseDir().findChild(LeiningenConstants.PROJECT_CLJ);
-        if (projectFile != null) {
-            addLeiningenProject(new LeiningenProject(projectFile, myProject));
-        }
-    }
+//    private void findProjectFiles() {
+//        leiningenProjects.clear();
+//        VirtualFile projectFile = myProject.getBaseDir().findChild(LeiningenConstants.PROJECT_CLJ);
+//        if (projectFile != null) {
+//            addLeiningenProject(new LeiningenProject(projectFile, myProject));
+//        }
+//    }
 
     private void removeLeiningenProject(LeiningenProject leiningenProject) {
         leiningenProjects.remove(leiningenProject);
@@ -134,7 +143,7 @@ public class LeiningenProjectsManager extends  SimpleProjectComponent implements
             try {
                 VirtualFile vf = VfsUtil.findFileByURL(new URL(projectFile));
                 if ( vf != null ) {
-                    LeiningenProject forReimport = new LeiningenProject(vf, myProject );
+                    LeiningenProject forReimport = LeiningenProject.create(vf, myProject);
                     result.add(forReimport);
                 }
             } catch (MalformedURLException e) {
@@ -144,7 +153,11 @@ public class LeiningenProjectsManager extends  SimpleProjectComponent implements
         LeiningenUtil.runWhenInitialized(myProject, new Runnable() {
             public void run() {
                 for (LeiningenProject leiningenProject : result) {
-                    leiningenProject.reimport();
+                    try {
+                        leiningenProject.reimport();
+                    } catch (LeiningenProjectException e) {
+                        // Do nothing for now
+                    }
                     addLeiningenProject(leiningenProject);
                 }
             }

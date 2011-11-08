@@ -53,8 +53,7 @@ public class LeiningenProjectBuilder extends ProjectImportBuilder<LeiningenProje
                                ModulesProvider modulesProvider, ModifiableArtifactModel modifiableArtifactModel) {
 
         LeiningenProjectsManager manager = LeiningenProjectsManager.getInstance(project);
-        LeiningenProject leiningenProject = new LeiningenProject(projectFile, project);
-        return manager.importLeiningenProject(leiningenProject);
+        return manager.importLeiningenProject(projectFile, project);
     }
 
     public void setProjectFile(VirtualFile projectFile) {

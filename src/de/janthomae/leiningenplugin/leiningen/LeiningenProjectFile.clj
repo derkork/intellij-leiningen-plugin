@@ -12,7 +12,8 @@
               [getLibraryPath [] String]
               [getTargetDir [] String]
               [getProjectFile [] String]
-              [isValid [] Boolean]]
+              [isValid [] Boolean]
+              [getError [] Throwable]]
     :constructors {[String] []}
     :state state))
 
@@ -22,23 +23,35 @@
   `(apply hash-map :name (quote ~project-name) :version ~version (quote ~args)))
 
 (defn project [this]
-  (first @(.state this)))
+  (:project @(.state this)))
+
+(defn status [this]
+  (:status @(.state this)))
+
+(defn exception [this]
+  (:exception @(.state this)))
 
 (defn project-path [this]
-  (second @(.state this)))
+  (:path @(.state this)))
 
 (defn read-project [file]
   (binding [*ns* (the-ns 'de.janthomae.leiningenplugin.leiningen.LeiningenProjectFile)]
-    (load-file file)))
+    (try
+      {:status true :project (load-file file)}
+      (catch Exception e
+        {:status false :exception e}))))
 
 ;; Class interface
 
 (defn -init [file]
   (let [p (read-project file)]
-    [[] (atom [p file])]))
+    [[] (atom (assoc p :path file))]))
 
 (defn -isValid [this]
-  (not (nil? (project this))))
+  (status this))
+
+(defn -getError [this]
+  (exception this))
 
 (defn -getName [this]
   (name (:name (project this))))

@@ -22,6 +22,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -47,11 +48,20 @@ public class LeiningenProject {
     private Module module;
     private LeiningenProjectFile leiningenProjectFile;
 
-    public LeiningenProject(VirtualFile projectFile, Project project) {
+    public static LeiningenProject createAndLoad(VirtualFile projectFile, Project project) throws LeiningenProjectException {
+        LeiningenProject leiningenProject = new LeiningenProject(projectFile, project);
+        leiningenProject.refreshDataFromFile();
+        return leiningenProject;
+    }
+
+    public static LeiningenProject create(VirtualFile projectFile, Project project) {
+        return new LeiningenProject(projectFile, project);
+    }
+
+    private LeiningenProject(VirtualFile projectFile, Project project) {
         this.projectFile = projectFile;
         this.project = project;
         this.workingDir = projectFile.getParent().getPath();
-        refreshDataFromFile();
     }
 
     public String getWorkingDir() {
@@ -74,11 +84,18 @@ public class LeiningenProject {
         return version;
     }
 
-    private void refreshDataFromFile() {
+    private void refreshDataFromFile() throws LeiningenProjectException {
         // Dirty hack to make clojure work in plugin environment
         Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
         // Reload project.clj
         leiningenProjectFile = new LeiningenProjectFile(projectFile.getPath());
+        if (!leiningenProjectFile.isValid()) {
+            WindowManager.getInstance().getStatusBar(project).fireNotificationPopup(
+                    new JLabel("Unable to load project file! Please check if it is valid leiningen project file!"),
+                    Color.RED
+            );
+            throw new LeiningenProjectException("Unable to load project file!", leiningenProjectFile.getError());
+        }
         name = leiningenProjectFile.getName();
         namespace = leiningenProjectFile.getNamespace();
         version = leiningenProjectFile.getVersion();
@@ -86,9 +103,9 @@ public class LeiningenProject {
 
     public static String[] nameAndVersionFromProjectFile(VirtualFile projectFile) {
         LeiningenProjectFile lpf = new LeiningenProjectFile(projectFile.getPath());
-        String myName = lpf.getName();
-        String myVersion = lpf.getVersion();
-        return new String[]{myName, myVersion};
+        String name = lpf.isValid() ? lpf.getName() : "";
+        String version = lpf.isValid() ? lpf.getVersion() : "";
+        return new String[]{name, version};
     }
 
     public String getDisplayName() {
@@ -110,7 +127,7 @@ public class LeiningenProject {
         return module;
     }
 
-    public Module reimport() {
+    public Module reimport() throws LeiningenProjectException {
         refreshDataFromFile();
         module = null;
 

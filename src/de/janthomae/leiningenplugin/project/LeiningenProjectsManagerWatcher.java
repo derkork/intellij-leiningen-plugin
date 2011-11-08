@@ -20,13 +20,13 @@ import java.util.List;
  */
 public class LeiningenProjectsManagerWatcher {
 
-    private Project myProject;
-    private final LeiningenProjectsManager myManager;
+    private Project project;
+    private final LeiningenProjectsManager manager;
     private MergingUpdateQueue myQueue;
 
     public LeiningenProjectsManagerWatcher(Project project, LeiningenProjectsManager manager) {
-        myProject = project;
-        myManager = manager;
+        this.project = project;
+        this.manager = manager;
         myQueue = new MergingUpdateQueue(getClass() + ": Document changes queue",
                 1000,
                 false,
@@ -34,7 +34,7 @@ public class LeiningenProjectsManagerWatcher {
     }
 
     public synchronized void start() {
-        final MessageBusConnection myBusConnection = myProject.getMessageBus().connect(myQueue);
+        final MessageBusConnection myBusConnection = project.getMessageBus().connect(myQueue);
         myBusConnection.subscribe(VirtualFileManager.VFS_CHANGES, new BulkFileListener() {
             public void before(List<? extends VFileEvent> vFileEvents) {
             }
@@ -43,9 +43,9 @@ public class LeiningenProjectsManagerWatcher {
                 for (VFileEvent vFileEvent : vFileEvents) {
 //                    if (vFileEvent instanceof VFileMoveEvent) {
 //                        if (isRelevant(vFileEvent.getPath())) {
-//                            LeiningenProject leiningenProject = myManager.byPath(vFileEvent.getPath());
+//                            LeiningenProject leiningenProject = manager.byPath(vFileEvent.getPath());
 //                            if (leiningenProject != null) {
-//                                myManager.removeLeiningenProject(leiningenProject);
+//                                manager.removeLeiningenProject(leiningenProject);
 //                            }
 //
 //                            VirtualFile newProjectFile = ((VFileMoveEvent)vFileEvent).getNewParent().findFileByRelativePath(((VFileMoveEvent) vFileEvent).getFile().getName());
@@ -56,17 +56,18 @@ public class LeiningenProjectsManagerWatcher {
 //                    }
 //                    if (vFileEvent instanceof VFileDeleteEvent) {
 //                        if (isRelevant(vFileEvent.getPath())) {
-//                            LeiningenProject leiningenProject = myManager.byPath(vFileEvent.getPath());
+//                            LeiningenProject leiningenProject = manager.byPath(vFileEvent.getPath());
 //                            if (leiningenProject != null) {
-//                                myManager.removeLeiningenProject(leiningenProject);
+//                                manager.removeLeiningenProject(leiningenProject);
 //                            }
 //                        }
 //                    }
                     if (vFileEvent instanceof VFileCreateEvent) {
                         if (isRelevant(vFileEvent.getPath())) {
-                            LeiningenProject leiningenProject = new LeiningenProject(
-                                    vFileEvent.getFileSystem().findFileByPath(vFileEvent.getPath()), myProject);
-                            myManager.importLeiningenProject(leiningenProject);
+                            manager.importLeiningenProject(
+                                    vFileEvent.getFileSystem().findFileByPath(vFileEvent.getPath()),
+                                    project
+                            );
                         }
                     }
                 }
