@@ -108,7 +108,7 @@ public class LeiningenProject {
     }
 
     public String getDisplayName() {
-        return namespace + "/" + name + (version != null ? ":" + version : "");
+        return (namespace != null ? namespace + "/" : "") + name + (version != null ? ":" + version : "");
     }
 
     @Override
