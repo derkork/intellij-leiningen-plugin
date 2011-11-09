@@ -30,8 +30,8 @@ public class AddManagedFilesAction extends AnAction {
 
             @Override
             public boolean isFileVisible(VirtualFile file, boolean showHiddenFiles) {
-                if (!file.isDirectory() && !LeiningenProjectsManager.isProjectFile(file)) return false;
-                return super.isFileVisible(file, showHiddenFiles);
+                return (file.isDirectory() || LeiningenProjectsManager.isProjectFile(file)) &&
+                        super.isFileVisible(file, showHiddenFiles);
             }
         };
 
@@ -42,8 +42,7 @@ public class AddManagedFilesAction extends AnAction {
         if (files.length == 0) return;
 
         for (VirtualFile file : files) {
-            LeiningenProject leiningenProject = new LeiningenProject(file, theProject);
-            manager.importLeiningenProject(leiningenProject);
+            manager.importLeiningenProject(file, theProject);
         }
     }
 }

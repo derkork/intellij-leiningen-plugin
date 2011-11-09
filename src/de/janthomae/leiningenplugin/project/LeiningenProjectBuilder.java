@@ -17,7 +17,7 @@ import java.util.List;
  * @version $Id:$
  */
 public class LeiningenProjectBuilder extends ProjectImportBuilder<LeiningenProject> {
-    private VirtualFile myProjectFile;
+    private VirtualFile projectFile;
 
     @Override
     public String getName() {
@@ -53,15 +53,14 @@ public class LeiningenProjectBuilder extends ProjectImportBuilder<LeiningenProje
                                ModulesProvider modulesProvider, ModifiableArtifactModel modifiableArtifactModel) {
 
         LeiningenProjectsManager manager = LeiningenProjectsManager.getInstance(project);
-        LeiningenProject leiningenProject = new LeiningenProject(myProjectFile, project);
-        return manager.importLeiningenProject(leiningenProject);
+        return manager.importLeiningenProject(projectFile, project);
     }
 
     public void setProjectFile(VirtualFile projectFile) {
-        myProjectFile = projectFile;
+        this.projectFile = projectFile;
     }
 
     public String getSuggestedProjectName() {
-        return LeiningenProject.nameAndVersionFromProjectFile(myProjectFile)[0];
+        return LeiningenProject.nameAndVersionFromProjectFile(projectFile)[0];
     }
 }

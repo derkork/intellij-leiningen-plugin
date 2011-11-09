@@ -1,5 +1,8 @@
 package de.janthomae.leiningenplugin;
 
+import com.intellij.notification.Notification;
+import com.intellij.notification.NotificationType;
+import com.intellij.notification.Notifications;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.project.DumbAware;
@@ -8,6 +11,8 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.startup.StartupManager;
 
 public class LeiningenUtil {
+    private static final String NOTIFICATION_GROUP_ID = "Leiningen";
+
     public static boolean isNoBackgroundMode() {
         return ApplicationManager.getApplication().isUnitTestMode()
                 || ApplicationManager.getApplication().isHeadlessEnvironment();
@@ -57,5 +62,23 @@ public class LeiningenUtil {
                 }
             }, state);
         }
+    }
+
+    public static void notifyError(final String title, final String content, final Project project) {
+        Notification notification = new Notification(NOTIFICATION_GROUP_ID, title, content, NotificationType.ERROR);
+        Notifications.Bus.notify(notification, project);
+    }
+
+    public static void notifyError(final String title, final String content) {
+        notifyError(title, content, null);
+    }
+
+    public static void notify(final String title, final String content, final Project project) {
+        Notification notification = new Notification(NOTIFICATION_GROUP_ID, title, content, NotificationType.INFORMATION);
+        Notifications.Bus.notify(notification, project);
+    }
+
+    public static void notify(final String title, final String content) {
+        notify(title, content, null);
     }
 }
