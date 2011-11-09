@@ -17,6 +17,7 @@ import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vcs.ui.VcsBalloonProblemNotifier;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.wm.WindowManager;
+import de.janthomae.leiningenplugin.LeiningenUtil;
 import de.janthomae.leiningenplugin.leiningen.LeiningenProjectFile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -90,10 +91,8 @@ public class LeiningenProject {
         // Reload project.clj
         leiningenProjectFile = new LeiningenProjectFile(projectFile.getPath());
         if (!leiningenProjectFile.isValid()) {
-            WindowManager.getInstance().getStatusBar(project).fireNotificationPopup(
-                    new JLabel("Unable to load project file! Please check if it is valid leiningen project file!"),
-                    Color.RED
-            );
+            LeiningenUtil.notifyError("Leiningen",
+                    "Unable to load project file! Please check if it is valid leiningen project!", project);
             throw new LeiningenProjectException("Unable to load project file!", leiningenProjectFile.getError());
         }
         name = leiningenProjectFile.getName();
