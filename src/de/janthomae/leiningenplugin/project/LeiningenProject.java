@@ -14,19 +14,14 @@ import com.intellij.openapi.roots.ContentEntry;
 import com.intellij.openapi.roots.ModifiableRootModel;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.util.io.FileUtil;
-import com.intellij.openapi.vcs.ui.VcsBalloonProblemNotifier;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.wm.WindowManager;
 import de.janthomae.leiningenplugin.LeiningenUtil;
 import de.janthomae.leiningenplugin.leiningen.LeiningenProjectFile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
-import java.awt.*;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -48,12 +43,6 @@ public class LeiningenProject {
     private String version;
     private Module module;
     private LeiningenProjectFile leiningenProjectFile;
-
-    public static LeiningenProject createAndLoad(VirtualFile projectFile, Project project) throws LeiningenProjectException {
-        LeiningenProject leiningenProject = new LeiningenProject(projectFile, project);
-        leiningenProject.refreshDataFromFile();
-        return leiningenProject;
-    }
 
     public static LeiningenProject create(VirtualFile projectFile, Project project) {
         return new LeiningenProject(projectFile, project);
@@ -86,8 +75,7 @@ public class LeiningenProject {
     }
 
     private void refreshDataFromFile() throws LeiningenProjectException {
-        // Dirty hack to make clojure work in plugin environment
-        Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
+        clojureClasspathHack();
         // Reload project.clj
         leiningenProjectFile = new LeiningenProjectFile(projectFile.getPath());
         if (!leiningenProjectFile.isValid()) {
@@ -101,10 +89,20 @@ public class LeiningenProject {
     }
 
     public static String[] nameAndVersionFromProjectFile(VirtualFile projectFile) {
+        clojureClasspathHack();
         LeiningenProjectFile lpf = new LeiningenProjectFile(projectFile.getPath());
         String name = lpf.isValid() ? lpf.getName() : "";
         String version = lpf.isValid() ? lpf.getVersion() : "";
         return new String[]{name, version};
+    }
+
+    /**
+     * This hack is required to pull the clojure library in to the current classpath. Otherwise
+     * clojure invocations will fail.You need to call this before using anything from the Leiningen
+     * interop library. Not too nice.
+     */
+    private static void clojureClasspathHack() {
+        Thread.currentThread().setContextClassLoader(LeiningenProject.class.getClassLoader());
     }
 
     public String getDisplayName() {

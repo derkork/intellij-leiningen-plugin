@@ -1,5 +1,11 @@
 h1. The IntelliJ Leiningen Plugin - Changes
 
+h2. Version 0.2.0
+* The changes in this version have been kindly contributed by Vladimir Matveev
+** Fixed project.clj file parsing
+** Correct compile/sources/resources/test directories recognition from project.clj
+** Added notifications on project file parsing errors
+
 h2. Version 0.1.1
 * Fixed compatibility issues with IDEA 10.5.
 

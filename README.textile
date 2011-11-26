@@ -29,4 +29,4 @@ into you IntelliJ plugins folder.
 
 h2. Submitting patches
 
-Patches can be submitted via email to janthomae at janthomae dot de.
+Patches can be submitted via email to janthomae at janthomae dot de or using GitHub's fork and pull request facility.
