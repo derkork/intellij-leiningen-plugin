@@ -3,6 +3,10 @@
     <description>This plugin integrates the Leiningen build system into IntelliJ IDEA.</description>
     <change-notes>
         <![CDATA[
+        <p>Version 0.2.1</p>
+        <ul>
+            <li>Made plugin compatible with IntelliJ IDEA 11</li>
+        </ul>
         <p>Version 0.2</p>
         <ul>
             <li>Fixed project.clj file parsing</li>
@@ -44,7 +48,7 @@
     </change-notes>
     <version>0.2</version>
     <vendor email="janthomae@janthomae.de" url="http://github.com/derkork/intellij-leiningen-plugin">Jan Thomä</vendor>
-    <idea-version since-build="107.000" until-build="107.9999"/>
+    <idea-version since-build="107.000" until-build="111.9999"/>
 
     <application-components>
     </application-components>
