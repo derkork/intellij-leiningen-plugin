@@ -54,13 +54,19 @@
   (exception this))
 
 (defn -getName [this]
-  (name (:name (project this))))
+  (if-let [project-name (:name (project this))]
+    (name project-name)
+    "<undefined>"))
 
 (defn -getNamespace [this]
-  (namespace (:name (project this))))
+  (if-let [project-name (:name (project this))]
+    (namespace (:name (project this)))
+    nil))
 
 (defn -getVersion [this]
-  (:version (project this)))
+  (if-let [project-version (:version (project this))]
+    project-version
+    "<undefined>"))
 
 (defn -getSourcePath [this]
   (:source-path (project this) "src"))
