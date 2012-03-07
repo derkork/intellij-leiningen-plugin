@@ -17,11 +17,17 @@ import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import de.janthomae.leiningenplugin.LeiningenUtil;
 import de.janthomae.leiningenplugin.leiningen.LeiningenProjectFile;
+import de.janthomae.leiningenplugin.run.LeiningenRunnerSettings;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -30,7 +36,6 @@ import java.util.List;
  *
  * @author <a href="janthomae@janthomae.de">Jan Thom&auml;</a>
  * @author Vladimir Matveev
- *
  * @version $Id:$
  */
 public class LeiningenProject {
@@ -102,7 +107,38 @@ public class LeiningenProject {
      * interop library. Not too nice.
      */
     private static void clojureClasspathHack() {
-        Thread.currentThread().setContextClassLoader(LeiningenProject.class.getClassLoader());
+        Thread.currentThread().setContextClassLoader(
+                new URLClassLoader(getLeinJarURLs(), LeiningenProject.class.getClassLoader()));
+    }
+
+    private static URL[] getLeinJarURLs() {
+        File leinHome = new File(LeiningenRunnerSettings.getInstance().leiningenHome);
+        ArrayList<URL> urls = new ArrayList<URL>();
+        if (leinHome.exists() && leinHome.isDirectory()) {
+            File[] dirs = new File[]{
+                    new File(leinHome.getPath() + "/plugins"),
+                    new File(leinHome.getPath() + "/self-installs")
+            };
+
+            for (File dir : dirs) {
+                if (dir.exists() && dir.isDirectory()) {
+                    File[] jars = dir.listFiles(new FilenameFilter() {
+                        @Override
+                        public boolean accept(File file, String s) {
+                            return s.endsWith("jar");
+                        }
+                    });
+                    for (File jar : jars) {
+                        try {
+                            urls.add(jar.toURL());
+                        } catch (MalformedURLException e) {
+                            // nop
+                        }
+                    }
+                }
+            }
+        }
+        return urls.toArray(new URL[]{});
     }
 
     public String getDisplayName() {
