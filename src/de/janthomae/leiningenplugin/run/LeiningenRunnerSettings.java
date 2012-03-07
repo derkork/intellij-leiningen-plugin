@@ -24,9 +24,12 @@ public class LeiningenRunnerSettings implements PersistentStateComponent<Leining
     @NotNull
     String leiningenPath = "/please/set/me/up/in/settings/leiningen";
 
+    public
+    @NotNull
+    String leiningenHome = System.getProperty("user.home") + "/.lein";
+
     public static LeiningenRunnerSettings getInstance() {
         return ServiceManager.getService(LeiningenRunnerSettings.class);
-
     }
 
     public LeiningenRunnerSettings getState() {
@@ -35,6 +38,5 @@ public class LeiningenRunnerSettings implements PersistentStateComponent<Leining
 
     public void loadState(LeiningenRunnerSettings leiningenRunnerSettings) {
         XmlSerializerUtil.copyBean(leiningenRunnerSettings, this);
-
     }
 }
