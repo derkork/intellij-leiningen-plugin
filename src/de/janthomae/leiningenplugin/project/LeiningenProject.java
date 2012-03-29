@@ -22,12 +22,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
-import java.io.FilenameFilter;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -85,7 +81,8 @@ public class LeiningenProject {
         leiningenProjectFile = new LeiningenProjectFile(projectFile.getPath());
         if (!leiningenProjectFile.isValid()) {
             LeiningenUtil.notifyError("Leiningen",
-                    "Unable to load project file! Please check if it is valid leiningen project!", project);
+                    "Unable to load project file! Please check if it is valid leiningen project! Reason: " +
+                            leiningenProjectFile.getError().getMessage(), project);
             throw new LeiningenProjectException("Unable to load project file!", leiningenProjectFile.getError());
         }
         name = leiningenProjectFile.getName();
@@ -108,37 +105,7 @@ public class LeiningenProject {
      */
     private static void clojureClasspathHack() {
         Thread.currentThread().setContextClassLoader(
-                new URLClassLoader(getLeinJarURLs(), LeiningenProject.class.getClassLoader()));
-    }
-
-    private static URL[] getLeinJarURLs() {
-        File leinHome = new File(LeiningenRunnerSettings.getInstance().leiningenHome);
-        ArrayList<URL> urls = new ArrayList<URL>();
-        if (leinHome.exists() && leinHome.isDirectory()) {
-            File[] dirs = new File[]{
-                    new File(leinHome.getPath() + "/plugins"),
-                    new File(leinHome.getPath() + "/self-installs")
-            };
-
-            for (File dir : dirs) {
-                if (dir.exists() && dir.isDirectory()) {
-                    File[] jars = dir.listFiles(new FilenameFilter() {
-                        @Override
-                        public boolean accept(File file, String s) {
-                            return s.endsWith("jar");
-                        }
-                    });
-                    for (File jar : jars) {
-                        try {
-                            urls.add(jar.toURL());
-                        } catch (MalformedURLException e) {
-                            // nop
-                        }
-                    }
-                }
-            }
-        }
-        return urls.toArray(new URL[]{});
+                new URLClassLoader(LeiningenRunnerSettings.getInstance().getLeiningenClasspathUrls(), LeiningenProject.class.getClassLoader()));
     }
 
     public String getDisplayName() {
