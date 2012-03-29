@@ -7,6 +7,7 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.vfs.VirtualFileManager;
 import de.janthomae.leiningenplugin.LeiningenConstants;
 import de.janthomae.leiningenplugin.LeiningenUtil;
 import de.janthomae.leiningenplugin.SimpleProjectComponent;
@@ -140,14 +141,10 @@ public class LeiningenProjectsManager extends  SimpleProjectComponent implements
     public void loadState(LeiningenProjectsManagerState leiningenProjectsManagerState) {
         final List<LeiningenProject> result = new ArrayList<LeiningenProject>();
         for (String projectFile : leiningenProjectsManagerState.projectFiles) {
-            try {
-                VirtualFile vf = VfsUtil.findFileByURL(new URL(projectFile));
-                if ( vf != null ) {
-                    LeiningenProject forReimport = LeiningenProject.create(vf, myProject);
-                    result.add(forReimport);
-                }
-            } catch (MalformedURLException e) {
-                // hmm ok
+            VirtualFile vf = VirtualFileManager.getInstance().findFileByUrl(projectFile);
+            if ( vf != null ) {
+                LeiningenProject forReimport = LeiningenProject.create(vf, myProject);
+                result.add(forReimport);
             }
         }
         LeiningenUtil.runWhenInitialized(myProject, new Runnable() {
