@@ -1,6 +1,6 @@
 (defproject de.janthomae/leiningenplugin "1.1.0-SNAPSHOT"
   :description "IntelliJ plugin for controlling Leiningen"
-  :dependencies [[org.clojure/clojure "1.1.0"]]
+  :dependencies [[org.clojure/clojure "1.2.1"]]
   :dev-dependencies [[junit/junit "4.8.2"]]
   :source-path "src"
   :resources-path "lein-resources"
