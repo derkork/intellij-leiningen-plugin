@@ -17,8 +17,7 @@ public class ShowSettingsAction extends AnAction {
 
     @Override
     public void actionPerformed(AnActionEvent e) {
-        LeiningenSettings leiningenSettings = ApplicationManager.getApplication().getComponent(LeiningenSettings.class);
-        ShowSettingsUtil.getInstance().showSettingsDialog(PlatformDataKeys.PROJECT.getData(e.getDataContext()), leiningenSettings);
+        ShowSettingsUtil.getInstance().showSettingsDialog(PlatformDataKeys.PROJECT.getData(e.getDataContext()), LeiningenSettings.DISPLAY_NAME);
     }
 
 }

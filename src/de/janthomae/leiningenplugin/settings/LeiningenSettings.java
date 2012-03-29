@@ -23,6 +23,7 @@ import java.awt.*;
  * @version $Id:$
  */
 public class LeiningenSettings implements Configurable {
+    public static final String DISPLAY_NAME = "Leiningen";
     private TextFieldWithBrowseButton leinBinSelectorField;
     private TextFieldWithBrowseButton leinHomeSelectorField;
     private JBCheckBox overrideLeinHome;
@@ -33,7 +34,7 @@ public class LeiningenSettings implements Configurable {
 
     @Nls
     public String getDisplayName() {
-        return "Leiningen";
+        return DISPLAY_NAME;
     }
 
     public Icon getIcon() {
