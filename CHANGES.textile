@@ -1,5 +1,9 @@
 h1. The IntelliJ Leiningen Plugin - Changes
 
+h2. Version 0.2.3
+* Made plugin compatible with IDEA 11.1.
+* Fixed non-working settings icon
+
 h2. Version 0.2.2
 * The changes in this version have been kindly contributed by Vladimir Matveev
 ** Bugfixes

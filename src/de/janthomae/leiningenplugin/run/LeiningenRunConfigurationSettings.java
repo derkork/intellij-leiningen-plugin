@@ -13,6 +13,7 @@ import de.janthomae.leiningenplugin.LeiningenConstants;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
+import java.util.Arrays;
 
 /**
  * @author <a href="janthomae@janthomae.de">Jan Thom&auml;</a>
@@ -21,7 +22,7 @@ import javax.swing.*;
 public class LeiningenRunConfigurationSettings extends SettingsEditor<LeiningenRunConfiguration> {
     private final Project myProject;
     private TextFieldWithBrowseButton wdSelector;
-    private TextFieldWithAutoCompletion goals;
+    private TextFieldWithAutoCompletion<String> goals;
 
     public LeiningenRunConfigurationSettings(final Project p) {
         myProject = p;
@@ -51,8 +52,7 @@ public class LeiningenRunConfigurationSettings extends SettingsEditor<LeiningenR
                         null, new FileChooserDescriptor(false, true, false, false, false, false));
         configurationPanel.add(this.wdSelector, c.xy(1, 2));
         configurationPanel.add(new JLabel("Goals to run (separate with space)"), c.xy(1, 4));
-        this.goals = new TextFieldWithAutoCompletion(myProject);
-        this.goals.setVariants(LeiningenConstants.GOALS);
+        this.goals = new TextFieldWithAutoCompletion<String>(myProject, new TextFieldWithAutoCompletion.StringsCompletionProvider(Arrays.asList(LeiningenConstants.GOALS),null), true );
         configurationPanel.add(this.goals, c.xy(1, 5));
         return configurationPanel;
     }
