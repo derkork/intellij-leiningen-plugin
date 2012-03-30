@@ -56,7 +56,7 @@
         </ul>
         ]]>
     </change-notes>
-    <version>0.2.2</version>
+    <version>0.2.3</version>
     <vendor email="janthomae@janthomae.de" url="http://github.com/derkork/intellij-leiningen-plugin">Jan Thomä</vendor>
     <idea-version since-build="117.000" until-build="117.9999"/>
 
