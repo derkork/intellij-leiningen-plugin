@@ -2,7 +2,8 @@ h1. The IntelliJ Leiningen Plugin - Changes
 
 h2. Version 0.2.3
 * Made plugin compatible with IDEA 11.1.
-* Fixed non-working settings icon
+* Leiningen Jar and plugins are now in the classpath for reading project.clj (thanks go to John Chapin)
+* Some minor bugfixes
 
 h2. Version 0.2.2
 * The changes in this version have been kindly contributed by Vladimir Matveev

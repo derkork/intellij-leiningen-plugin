@@ -6,7 +6,8 @@
         <p>Version 0.2.3</p>
         <ul>
             <li>Made plugin compatible with IntellIJ 11.1</li>
-            <li>Fixed non-working settings icon</li>
+            <li>Leiningen Jar and plugins are now in the classpath for reading project.clj (thanks go to John Chapin)</li>
+            <li>Some minor bugfixes</li>
         </ul>
         <p>Version 0.2.2</p>
         <ul>
