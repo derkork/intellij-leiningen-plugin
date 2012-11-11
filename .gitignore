@@ -1,0 +1,15 @@
+#Ignore IntelliJ Files
+
+*.iml
+*.ipr
+*.iws
+
+#Ignore generated files
+.lein-deps-sum
+
+classes
+target
+
+lib
+
+*.zip

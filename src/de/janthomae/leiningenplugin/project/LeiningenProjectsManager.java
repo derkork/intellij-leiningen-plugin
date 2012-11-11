@@ -5,15 +5,12 @@ import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import de.janthomae.leiningenplugin.LeiningenConstants;
 import de.janthomae.leiningenplugin.LeiningenUtil;
 import de.janthomae.leiningenplugin.SimpleProjectComponent;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -72,8 +69,9 @@ public class LeiningenProjectsManager extends  SimpleProjectComponent implements
         LeiningenProject leiningenProject = null;
 
         try {
-            leiningenProject = LeiningenProject.create(projectFile, project);
-            Module m = leiningenProject.reimport();
+            leiningenProject = LeiningenProject.create(projectFile);
+            /** Side effect - adds to the project's module list */
+            leiningenProject.reimport(project);
 
             if ( !hasProject( leiningenProject) ) {
                 addLeiningenProject(leiningenProject);
@@ -143,7 +141,7 @@ public class LeiningenProjectsManager extends  SimpleProjectComponent implements
         for (String projectFile : leiningenProjectsManagerState.projectFiles) {
             VirtualFile vf = VirtualFileManager.getInstance().findFileByUrl(projectFile);
             if ( vf != null ) {
-                LeiningenProject forReimport = LeiningenProject.create(vf, myProject);
+                LeiningenProject forReimport = LeiningenProject.create(vf);
                 result.add(forReimport);
             }
         }
@@ -151,7 +149,7 @@ public class LeiningenProjectsManager extends  SimpleProjectComponent implements
             public void run() {
                 for (LeiningenProject leiningenProject : result) {
                     try {
-                        leiningenProject.reimport();
+                        leiningenProject.reimport(myProject);
                     } catch (LeiningenProjectException e) {
                         // Do nothing for now
                     }

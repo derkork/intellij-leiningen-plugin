@@ -3,6 +3,13 @@
     <description>This plugin integrates the Leiningen build system into IntelliJ IDEA.</description>
     <change-notes>
         <![CDATA[
+        <p>Version 0.2.4</p>
+        <ul>
+            <li>Added support for Leiningen 2.0 as the primary dependency resolution (similar to the Maven plugin)</li>
+            <li>Added support for multiple source, tests, or resource paths </li>
+            <li>Added support for different dependency scope issues</li>
+            <li>Added background processing for leiningen project refreshes</li>
+        </ul>
         <p>Version 0.2.3</p>
         <ul>
             <li>Made plugin compatible with IntellIJ 11.1</li>
@@ -56,7 +63,7 @@
         </ul>
         ]]>
     </change-notes>
-    <version>0.2.3</version>
+    <version>0.2.4</version>
     <vendor email="janthomae@janthomae.de" url="http://github.com/derkork/intellij-leiningen-plugin">Jan Thomä</vendor>
     <idea-version since-build="117.000" until-build="117.9999"/>
 
