@@ -24,7 +24,7 @@ public class RefreshProjectsAction extends AnAction {
         final List<LeiningenProject> projects = manager.getLeiningenProjects();
         for (LeiningenProject project : projects) {
             try {
-                project.reimport();
+                project.reimport(theProject);
             } catch (LeiningenProjectException e1) {
                 // Just ignore it for now
             }

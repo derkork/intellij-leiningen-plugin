@@ -1,31 +1,14 @@
 package de.janthomae.leiningenplugin.project;
 
-import com.intellij.ide.highlighter.ModuleFileType;
-import com.intellij.openapi.application.ReadAction;
-import com.intellij.openapi.application.Result;
-import com.intellij.openapi.application.WriteAction;
-import com.intellij.openapi.module.ModifiableModuleModel;
-import com.intellij.openapi.module.Module;
-import com.intellij.openapi.module.ModuleManager;
-import com.intellij.openapi.module.StdModuleTypes;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.roots.CompilerModuleExtension;
-import com.intellij.openapi.roots.ContentEntry;
-import com.intellij.openapi.roots.ModifiableRootModel;
-import com.intellij.openapi.roots.ModuleRootManager;
-import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.VirtualFile;
-import de.janthomae.leiningenplugin.LeiningenUtil;
-import de.janthomae.leiningenplugin.leiningen.LeiningenProjectFile;
-import de.janthomae.leiningenplugin.run.LeiningenRunnerSettings;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import com.intellij.util.ui.update.MergingUpdateQueue;
+import com.intellij.util.ui.update.Update;
+import de.janthomae.leiningenplugin.leiningen.LeiningenAPI;
+import de.janthomae.leiningenplugin.module.ModuleCreationUtils;
+import de.janthomae.leiningenplugin.utils.ClassPathUtils;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URLClassLoader;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.Map;
 
 /**
  * Representation of Leiningen project in this plugin.
@@ -35,77 +18,37 @@ import java.util.List;
  * @version $Id:$
  */
 public class LeiningenProject {
-    private final VirtualFile projectFile;
-    private final Project project;
+    private final VirtualFile leinProjectFile;
 
-    private String workingDir;
     private String name;
     private String namespace;
     private String version;
-    private Module module;
-    private LeiningenProjectFile leiningenProjectFile;
+    private MergingUpdateQueue mergingUpdateQueue;
 
-    public static LeiningenProject create(VirtualFile projectFile, Project project) {
-        return new LeiningenProject(projectFile, project);
+    public static LeiningenProject create(VirtualFile leinProjectFile) {
+        return new LeiningenProject(leinProjectFile);
     }
 
-    private LeiningenProject(VirtualFile projectFile, Project project) {
-        this.projectFile = projectFile;
-        this.project = project;
-        this.workingDir = projectFile.getParent().getPath();
+    private LeiningenProject(VirtualFile leinProjectFile) {
+        this.leinProjectFile = leinProjectFile;
+
+        //Update in the background - based loosely on org.jetbrains.idea.maven.utils.MavenImportNotifier
+        mergingUpdateQueue = new MergingUpdateQueue("Leiningen Project Update Queue",500,true,MergingUpdateQueue.ANY_COMPONENT);
     }
 
     public String getWorkingDir() {
-        return workingDir;
+        return leinProjectFile.getParent().getPath();
     }
 
 
     public VirtualFile getVirtualFile() {
-        return projectFile;
-    }
-
-
-    @NotNull
-    public String getName() {
-        return name;
-    }
-
-    @Nullable
-    public String getVersion() {
-        return version;
-    }
-
-    private void refreshDataFromFile() throws LeiningenProjectException {
-        clojureClasspathHack();
-        // Reload project.clj
-        leiningenProjectFile = new LeiningenProjectFile(projectFile.getPath());
-        if (!leiningenProjectFile.isValid()) {
-            LeiningenUtil.notifyError("Leiningen",
-                    "Unable to load project file! Please check if it is valid leiningen project! Reason: " +
-                            leiningenProjectFile.getError().getMessage(), project);
-            throw new LeiningenProjectException("Unable to load project file!", leiningenProjectFile.getError());
-        }
-        name = leiningenProjectFile.getName();
-        namespace = leiningenProjectFile.getNamespace();
-        version = leiningenProjectFile.getVersion();
+        return leinProjectFile;
     }
 
     public static String[] nameAndVersionFromProjectFile(VirtualFile projectFile) {
-        clojureClasspathHack();
-        LeiningenProjectFile lpf = new LeiningenProjectFile(projectFile.getPath());
-        String name = lpf.isValid() ? lpf.getName() : "";
-        String version = lpf.isValid() ? lpf.getVersion() : "";
-        return new String[]{name, version};
-    }
-
-    /**
-     * This hack is required to pull the clojure library in to the current classpath. Otherwise
-     * clojure invocations will fail.You need to call this before using anything from the Leiningen
-     * interop library. Not too nice.
-     */
-    private static void clojureClasspathHack() {
-        Thread.currentThread().setContextClassLoader(
-                new URLClassLoader(LeiningenRunnerSettings.getInstance().getLeiningenClasspathUrls(), LeiningenProject.class.getClassLoader()));
+        ClassPathUtils.getInstance().switchToPluginClassLoader();
+        Map map = LeiningenAPI.loadProject(projectFile.getPath());
+        return new String[]{(String)map.get(ModuleCreationUtils.LEIN_PROJECT_NAME), (String) map.get(ModuleCreationUtils.LEIN_PROJECT_VERSION)};
     }
 
     public String getDisplayName() {
@@ -115,152 +58,43 @@ public class LeiningenProject {
     @Override
     public boolean equals(Object obj) {
         return obj != null && obj instanceof LeiningenProject &&
-                ((LeiningenProject) obj).projectFile.equals(projectFile);
+                ((LeiningenProject) obj).leinProjectFile.equals(leinProjectFile);
     }
 
     @Override
     public int hashCode() {
-        return projectFile.getPath().hashCode();
+        return leinProjectFile.getPath().hashCode();
     }
 
-    public Module getManagedModule() {
-        return module;
-    }
+    /**
+     * Reimport the leiningen project.
+     *
+     * This will refresh the leiningen module associated with this project.
+     *
+     * @param ideaProject The idea project
+     * @throws LeiningenProjectException
+     */
+    public void reimport(final Project ideaProject) throws LeiningenProjectException {
 
-    public Module reimport() throws LeiningenProjectException {
-        refreshDataFromFile();
-        module = null;
-
-        // find a matching module
-        final ModifiableModuleModel moduleModel = getModuleModel();
-
-        for (Module module : moduleModel.getModules()) {
-            ModifiableRootModel rootModel = getRootModel(module);
-            final VirtualFile[] contentRoots = rootModel.getContentRoots();
-            for (VirtualFile contentRoot : contentRoots) {
-                if (contentRoot.getPath().equals(workingDir)) {
-                    this.module = module;
-                    break;
-                }
-            }
-            if (this.module != null) {
-                break;
-            }
-        }
-
-        if (module == null) {
-            // oh-kay we don't have a module yet.
-            module = moduleModel.newModule(workingDir + File.separator + FileUtil.sanitizeFileName(name) +
-                    ModuleFileType.DOT_DEFAULT_EXTENSION, StdModuleTypes.JAVA);
-        }
-
-        // now set up different paths
-        final ModifiableRootModel rootModel = getRootModel(module);
-        rootModel.inheritSdk();
-        final ContentEntry contentEntry = rootModel.addContentEntry(projectFile.getParent());
-
-
-        final VirtualFile sourcePath = getSourcePath();
-        if (sourcePath != null) {
-            contentEntry.addSourceFolder(sourcePath, false);
-        }
-
-        final VirtualFile testSourcePath = getTestSourcePath();
-        if (testSourcePath != null) {
-            contentEntry.addSourceFolder(testSourcePath, true);
-        }
-
-        final VirtualFile resourcesPath = getResourcesPath();
-        if (resourcesPath != null) {
-            contentEntry.addSourceFolder(resourcesPath, false);
-        }
-
-        VirtualFile outputPath = createOrGetOutputPath();
-        if (outputPath != null) {
-            final CompilerModuleExtension extension = rootModel.getModuleExtension(CompilerModuleExtension.class);
-
-            extension.inheritCompilerOutputPath(false);
-            extension.setCompilerOutputPath(outputPath);
-            extension.setCompilerOutputPathForTests(outputPath);
-        }
-
-        new WriteAction() {
+        // This puts the downloading and refreshing on a background queue.  Now that lein can download
+        // dependencies it will lock the UI unless it's put on a background thread.
+        // This makes it so the ui is responsive, however we need to put some sort of feedback to the user
+        // so that he knows when it's complete - like the Maven plugin does.
+        // TODO Leaving this for future development.
+        mergingUpdateQueue.queue(new Update(mergingUpdateQueue) {
             @Override
-            protected void run(Result result) throws Throwable {
-                rootModel.commit();
-                moduleModel.commit();
+            public void run() {
+                //Reload the lein project file
+                ModuleCreationUtils mcu = new ModuleCreationUtils();
+
+                //Update the module - eventually we can have multiple modules here that the project maintains.
+                Map result = mcu.importModule(ideaProject, leinProjectFile);
+
+                name = (String) result.get(ModuleCreationUtils.LEIN_PROJECT_NAME);
+                namespace = (String) result.get(ModuleCreationUtils.LEIN_PROJECT_GROUP);
+                version = (String) result.get(ModuleCreationUtils.LEIN_PROJECT_VERSION);
             }
-        }.execute();
-        return module;
+        });
+
     }
-
-    @Nullable
-    private VirtualFile createOrGetOutputPath() {
-        final String compilePath = leiningenProjectFile.getCompilePath();
-        final VirtualFile projectDirectory = projectFile.getParent();
-        final VirtualFile outputPath = projectDirectory.findFileByRelativePath(compilePath);
-        if (outputPath != null) {
-            return outputPath;
-        }
-        return new WriteAction<VirtualFile>() {
-            private List<String> splitDirectories(String directory) {
-                LinkedList<String> directories = new LinkedList<String>();
-                File current = new File(directory);
-                while (current != null) {
-                    directories.addFirst(current.getName());
-                    current = current.getParentFile();
-                }
-                return directories;
-            }
-
-            @Override
-            public void run(Result<VirtualFile> result) {
-                try {
-                    List<String> directories = splitDirectories(compilePath);
-                    VirtualFile lastDirectory = projectDirectory;
-                    for (String directory : directories)
-                        lastDirectory = lastDirectory.createChildDirectory(this, directory);
-                    if (lastDirectory == projectDirectory)
-                        lastDirectory = null;
-                    result.setResult(lastDirectory);
-                } catch (IOException e) {
-                    result.setResult(null);
-                }
-
-            }
-
-        }.execute().getResultObject();
-    }
-
-    @Nullable
-    private VirtualFile getResourcesPath() {
-        return projectFile.getParent().findChild(leiningenProjectFile.getResourcesPath());
-    }
-
-    @Nullable
-    private VirtualFile getTestSourcePath() {
-        return projectFile.getParent().findChild(leiningenProjectFile.getTestPath());
-    }
-
-    @Nullable
-    private VirtualFile getSourcePath() {
-        return projectFile.getParent().findChild(leiningenProjectFile.getSourcePath());
-    }
-
-    protected ModifiableModuleModel getModuleModel() {
-        return new ReadAction<ModifiableModuleModel>() {
-            protected void run(Result<ModifiableModuleModel> result) throws Throwable {
-                result.setResult(ModuleManager.getInstance(project).getModifiableModel());
-            }
-        }.execute().getResultObject();
-    }
-
-    protected ModifiableRootModel getRootModel(final Module module) {
-        return new ReadAction<ModifiableRootModel>() {
-            protected void run(Result<ModifiableRootModel> result) throws Throwable {
-                result.setResult(ModuleRootManager.getInstance(module).getModifiableModel());
-            }
-        }.execute().getResultObject();
-    }
-
 }
