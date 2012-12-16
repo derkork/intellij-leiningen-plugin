@@ -1,12 +1,14 @@
 package de.janthomae.leiningenplugin.project;
 
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.util.ui.update.MergingUpdateQueue;
-import com.intellij.util.ui.update.Update;
 import de.janthomae.leiningenplugin.leiningen.LeiningenAPI;
 import de.janthomae.leiningenplugin.module.ModuleCreationUtils;
 import de.janthomae.leiningenplugin.utils.ClassPathUtils;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 
@@ -23,7 +25,6 @@ public class LeiningenProject {
     private String name;
     private String namespace;
     private String version;
-    private MergingUpdateQueue mergingUpdateQueue;
 
     public static LeiningenProject create(VirtualFile leinProjectFile) {
         return new LeiningenProject(leinProjectFile);
@@ -31,9 +32,6 @@ public class LeiningenProject {
 
     private LeiningenProject(VirtualFile leinProjectFile) {
         this.leinProjectFile = leinProjectFile;
-
-        //Update in the background - based loosely on org.jetbrains.idea.maven.utils.MavenImportNotifier
-        mergingUpdateQueue = new MergingUpdateQueue("Leiningen Project Update Queue",500,true,MergingUpdateQueue.ANY_COMPONENT);
     }
 
     public String getWorkingDir() {
@@ -48,7 +46,8 @@ public class LeiningenProject {
     public static String[] nameAndVersionFromProjectFile(VirtualFile projectFile) {
         ClassPathUtils.getInstance().switchToPluginClassLoader();
         Map map = LeiningenAPI.loadProject(projectFile.getPath());
-        return new String[]{(String)map.get(ModuleCreationUtils.LEIN_PROJECT_NAME), (String) map.get(ModuleCreationUtils.LEIN_PROJECT_VERSION)};
+        return new String[]{(String) map.get(ModuleCreationUtils.LEIN_PROJECT_NAME),
+                (String) map.get(ModuleCreationUtils.LEIN_PROJECT_VERSION)};
     }
 
     public String getDisplayName() {
@@ -67,8 +66,8 @@ public class LeiningenProject {
     }
 
     /**
-     * Reimport the leiningen project.
-     *
+     * Re-import the leiningen project.
+     * <p/>
      * This will refresh the leiningen module associated with this project.
      *
      * @param ideaProject The idea project
@@ -80,21 +79,29 @@ public class LeiningenProject {
         // dependencies it will lock the UI unless it's put on a background thread.
         // This makes it so the ui is responsive, however we need to put some sort of feedback to the user
         // so that he knows when it's complete - like the Maven plugin does.
-        // TODO Leaving this for future development.
-        mergingUpdateQueue.queue(new Update(mergingUpdateQueue) {
+
+        ApplicationManager.getApplication().invokeLater(new Runnable() {
             @Override
             public void run() {
-                //Reload the lein project file
-                ModuleCreationUtils mcu = new ModuleCreationUtils();
+                new Task.Backgroundable(ideaProject, "Synchronizing Leiningen project", false) {
+                    @Override
+                    public void run(@NotNull ProgressIndicator indicator) {
+                        indicator.setIndeterminate(true);
+                        //Reload the lein project file
+                        ModuleCreationUtils mcu = new ModuleCreationUtils();
 
-                //Update the module - eventually we can have multiple modules here that the project maintains.
-                Map result = mcu.importModule(ideaProject, leinProjectFile);
+                        //Update the module - eventually we can have multiple modules here that the project maintains.
+                        Map result = mcu.importModule(ideaProject, leinProjectFile);
 
-                name = (String) result.get(ModuleCreationUtils.LEIN_PROJECT_NAME);
-                namespace = (String) result.get(ModuleCreationUtils.LEIN_PROJECT_GROUP);
-                version = (String) result.get(ModuleCreationUtils.LEIN_PROJECT_VERSION);
+                        name = (String) result.get(ModuleCreationUtils.LEIN_PROJECT_NAME);
+                        namespace = (String) result.get(ModuleCreationUtils.LEIN_PROJECT_GROUP);
+                        version = (String) result.get(ModuleCreationUtils.LEIN_PROJECT_VERSION);
+                    }
+                }.queue();
             }
-        });
+        }, ideaProject.getDisposed());
+        // the second parameter makes sure that the task will not be executed if the project is disposed in the mean
+        // time. this can happen if the user closes the project quickly after re-opening it.
 
     }
 }
