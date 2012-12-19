@@ -3,6 +3,8 @@
 *.iml
 *.ipr
 *.iws
+.idea
+out
 
 #Ignore generated files
 .lein-deps-sum
