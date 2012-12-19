@@ -199,7 +199,7 @@ public class ModuleCreationUtils {
         if (module == null) {
             // oh-kay we don't have a module yet.
             String filePath = workingDir + File.separator + FileUtil.sanitizeFileName(name) + ModuleFileType.DOT_DEFAULT_EXTENSION;
-            module = moduleManager.newModule(filePath, StdModuleTypes.JAVA);
+            module = moduleManager.newModule(filePath, StdModuleTypes.JAVA.getId());
         }
 
         return getRootModel(module);
