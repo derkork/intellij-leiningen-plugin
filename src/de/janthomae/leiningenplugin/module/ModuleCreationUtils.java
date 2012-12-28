@@ -43,6 +43,7 @@ public class ModuleCreationUtils {
     public final static String LEIN_COMPILE_PATH = "compile-path";
     public final static String LEIN_RESOURCE_PATHS = "resource-paths";
     public final static String LEIN_SOURCE_PATHS = "source-paths";
+    public final static String LEIN_JAVA_SOURCE_PATHS = "java-source-paths";
     public final static String LEIN_TEST_PATHS = "test-paths";
     public final static String LEIN_PROJECT_NAME = "name";
     public final static String LEIN_PROJECT_VERSION = "version";
@@ -117,6 +118,9 @@ public class ModuleCreationUtils {
 
         List<String> sourcePaths = getPaths(LEIN_SOURCE_PATHS, leinProjectMap);
         addSourceFoldersToContentEntry(contentEntry, sourcePaths, false);
+
+        List<String> javaSourcePaths = getPaths(LEIN_JAVA_SOURCE_PATHS,leinProjectMap);
+        addSourceFoldersToContentEntry(contentEntry,javaSourcePaths,false);
 
         List<String> testPaths = getPaths(LEIN_TEST_PATHS, leinProjectMap);
         addSourceFoldersToContentEntry(contentEntry, testPaths, true);
