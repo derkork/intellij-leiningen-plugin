@@ -52,7 +52,7 @@ public class LeiningenRunConfigurationSettings extends SettingsEditor<LeiningenR
                         null, new FileChooserDescriptor(false, true, false, false, false, false));
         configurationPanel.add(this.wdSelector, c.xy(1, 2));
         configurationPanel.add(new JLabel("Goals to run (separate with space)"), c.xy(1, 4));
-        this.goals = new TextFieldWithAutoCompletion<String>(myProject, new TextFieldWithAutoCompletion.StringsCompletionProvider(Arrays.asList(LeiningenConstants.GOALS),null), true,null );
+        this.goals = new TextFieldWithAutoCompletion<String>(myProject, new TextFieldWithAutoCompletion.StringsCompletionProvider(Arrays.asList(LeiningenConstants.GOALS),null), true );
         configurationPanel.add(this.goals, c.xy(1, 5));
         return configurationPanel;
     }
