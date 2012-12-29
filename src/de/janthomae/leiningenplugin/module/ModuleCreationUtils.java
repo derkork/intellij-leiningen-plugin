@@ -15,10 +15,7 @@ import com.intellij.openapi.roots.impl.libraries.ProjectLibraryTable;
 import com.intellij.openapi.roots.libraries.Library;
 import com.intellij.openapi.roots.libraries.LibraryTable;
 import com.intellij.openapi.util.io.FileUtil;
-import com.intellij.openapi.vfs.JarFileSystem;
-import com.intellij.openapi.vfs.VfsUtil;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.vfs.VirtualFileManager;
+import com.intellij.openapi.vfs.*;
 import de.janthomae.leiningenplugin.leiningen.LeiningenAPI;
 import de.janthomae.leiningenplugin.utils.ClassPathUtils;
 import gnu.trove.THashMap;
@@ -43,6 +40,7 @@ public class ModuleCreationUtils {
     public final static String LEIN_COMPILE_PATH = "compile-path";
     public final static String LEIN_RESOURCE_PATHS = "resource-paths";
     public final static String LEIN_SOURCE_PATHS = "source-paths";
+    public final static String LEIN_JAVA_SOURCE_PATHS = "java-source-paths";
     public final static String LEIN_TEST_PATHS = "test-paths";
     public final static String LEIN_PROJECT_NAME = "name";
     public final static String LEIN_PROJECT_VERSION = "version";
@@ -65,9 +63,11 @@ public class ModuleCreationUtils {
     public List<String> getPaths(String type, Map leinProjectMap) {
         LazySeq pathStrings = ((LazySeq) leinProjectMap.get(type));
         List<String> results = new ArrayList<String>();
-        for (Object obj : pathStrings) {
-            String path = (String) obj;
-            results.add(path);
+        if (pathStrings != null) {
+            for (Object obj : pathStrings) {
+                String path = (String) obj;
+                results.add(path);
+            }
         }
         return results;
     }
@@ -79,6 +79,9 @@ public class ModuleCreationUtils {
      * <p/>
      * SIDE-EFFECT: Will modify contentEntry
      *
+     * Note: This function will only add values to the content entry if they exist on the file system.  If the path doesn't
+     * exist on the file system, then it will be ignored.
+     *
      * @param contentEntry The contentEntry to be updated
      * @param paths        The list of paths to add.  These need to be absolute paths.
      * @param isTestSource Indicate if this is a test directory
@@ -89,11 +92,9 @@ public class ModuleCreationUtils {
             new WriteAction() {
                 @Override
                 protected void run(Result result) throws Throwable {
-                    try {
-                        VirtualFile directory = VfsUtil.createDirectoryIfMissing(path);
+                    VirtualFile directory = LocalFileSystem.getInstance().refreshAndFindFileByPath(path);
+                    if (directory != null) {
                         contentEntry.addSourceFolder(directory, isTestSource);
-                    } catch (IOException e) {
-                        throw new RuntimeException("Could not create directory: " + path, e);
                     }
                 }
             }.execute();
@@ -117,6 +118,9 @@ public class ModuleCreationUtils {
 
         List<String> sourcePaths = getPaths(LEIN_SOURCE_PATHS, leinProjectMap);
         addSourceFoldersToContentEntry(contentEntry, sourcePaths, false);
+
+        List<String> javaSourcePaths = getPaths(LEIN_JAVA_SOURCE_PATHS,leinProjectMap);
+        addSourceFoldersToContentEntry(contentEntry,javaSourcePaths,false);
 
         List<String> testPaths = getPaths(LEIN_TEST_PATHS, leinProjectMap);
         addSourceFoldersToContentEntry(contentEntry, testPaths, true);
@@ -199,7 +203,7 @@ public class ModuleCreationUtils {
         if (module == null) {
             // oh-kay we don't have a module yet.
             String filePath = workingDir + File.separator + FileUtil.sanitizeFileName(name) + ModuleFileType.DOT_DEFAULT_EXTENSION;
-            module = moduleManager.newModule(filePath, StdModuleTypes.JAVA);
+            module = moduleManager.newModule(filePath, StdModuleTypes.JAVA.getId());
         }
 
         return getRootModel(module);
