@@ -3,6 +3,11 @@
     <description>This plugin integrates the Leiningen build system into IntelliJ IDEA.</description>
     <change-notes>
         <![CDATA[
+         <p>Version 0.2.6</p>
+        <ul>
+        <li>Fixed issue #18 (hopefully).</li>
+        </ul>
+
         <p>Version 0.2.5</p>
         <ul>
             <li>No longer create directories (ie. src, resources, dev-resources, etc) if they do not exist on the filesystem (Issue #20)</li>
@@ -68,7 +73,7 @@
         </ul>
         ]]>
     </change-notes>
-    <version>0.2.5</version>
+    <version>0.2.6</version>
     <vendor email="janthomae@janthomae.de" url="http://github.com/derkork/intellij-leiningen-plugin">Jan Thomä</vendor>
     <idea-version since-build="117.000" until-build="117.9999"/>
 
