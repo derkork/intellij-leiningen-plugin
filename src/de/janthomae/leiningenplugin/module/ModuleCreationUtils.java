@@ -18,14 +18,12 @@ import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.*;
 import de.janthomae.leiningenplugin.leiningen.LeiningenAPI;
 import de.janthomae.leiningenplugin.utils.ClassPathUtils;
-import gnu.trove.THashMap;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Created with IntelliJ IDEA.
@@ -243,25 +241,28 @@ public class ModuleCreationUtils {
      * @param dependencyMaps The list of maps containing the dependency information.
      * @return The set of libraries that were created.
      */
-    private Set<Library.ModifiableModel> initializeDependencies(ModifiableRootModel module, LibraryTable.ModifiableModel projectLibraries, List dependencyMaps) {
+    private List<LibraryInfo> initializeDependencies(ModifiableRootModel module, LibraryTable.ModifiableModel projectLibraries, List dependencyMaps) {
 
         //Reset them module's library order entries here - this actually happens in org.jetbrains.idea.maven.importing.MavenRootModelAdapter.initOrderEntries()
         for (OrderEntry orderEntry : module.getOrderEntries()) {
             if (orderEntry instanceof LibraryOrderEntry) {
                 //Remove any library from the project list so it can be refreshed.
-                projectLibraries.removeLibrary(((LibraryOrderEntry) orderEntry).getLibrary());
+              Library library = ((LibraryOrderEntry) orderEntry).getLibrary();
+              if (library != null) {
+                projectLibraries.removeLibrary(library);
+              }
                 module.removeOrderEntry(orderEntry);
             }
         }
 
         //Add the dependencies to the projects's library table - this is how maven does it - but we could put the libraries directly on the module - but maybe it's better if we share a lot of libraries between modules.
-        Map<Library.ModifiableModel, DependencyScope> scopeMap = createLibraries(projectLibraries, dependencyMaps);
+        List<LibraryInfo> libraries = createLibraries(projectLibraries, dependencyMaps);
 
         //Now add the libraries to the modules.
-        for (Map.Entry<Library.ModifiableModel, DependencyScope> entry : scopeMap.entrySet()) {
-            module.addLibraryEntry(projectLibraries.getLibraryByName(entry.getKey().getName())).setScope(entry.getValue());
+        for (LibraryInfo entry : libraries) {
+            module.addLibraryEntry(entry.library).setScope(entry.dependencyScope);
         }
-        return scopeMap.keySet();
+        return libraries;
     }
 
 
@@ -299,14 +300,14 @@ public class ModuleCreationUtils {
 
         //Load all the dependencies from the project file
         List dependencyMaps = LeiningenAPI.loadDependencies(leinProjectFile.getCanonicalPath());
-        final Set<Library.ModifiableModel> dependencies = initializeDependencies(module, projectLibraries,dependencyMaps);
+        final List<LibraryInfo> dependencies = initializeDependencies(module, projectLibraries,dependencyMaps);
 
         new WriteAction() {
             @Override
             protected void run(Result result) throws Throwable {
 
-                for (Library.ModifiableModel library : dependencies) {
-                    library.commit();
+                for (LibraryInfo library : dependencies) {
+                    library.modifiableModel.commit();
                 }
 
                 //Save the project libraries
@@ -332,14 +333,15 @@ public class ModuleCreationUtils {
      * @param dependencyMaps The list of dependency maps definining the libraries needed.
      * @return A Map of the Libraries which were described in dependencyMaps along with their scope for the module
      */
-    private Map<Library.ModifiableModel, DependencyScope> createLibraries(LibraryTable.ModifiableModel libraryTable, List dependencyMaps) {
+    private List<LibraryInfo> createLibraries(LibraryTable.ModifiableModel libraryTable, List dependencyMaps) {
 
-        Map<Library.ModifiableModel, DependencyScope> libraryDependencyScopeMap = new THashMap<Library.ModifiableModel, DependencyScope>();
+        List<LibraryInfo> result = new ArrayList<LibraryInfo>();
         final String LEIN_LIB_PREFIX = "Leiningen";
         for (Object obj : dependencyMaps) {
             Map dependency = (Map) obj;
             //Check if the library already exists
-            String libraryName = LEIN_LIB_PREFIX + ": " + (String) dependency.get("groupid") + ":" + (String) dependency.get("artifactid") + ":" + dependency.get("version");
+            String libraryName = LEIN_LIB_PREFIX + ": " + dependency.get("groupid") + ":" +
+                    dependency.get("artifactid") + ":" + dependency.get("version");
             Library library = libraryTable.getLibraryByName(libraryName);
             if (library == null) {
                 library = libraryTable.createLibrary(libraryName);
@@ -360,9 +362,13 @@ public class ModuleCreationUtils {
             libraryModel.addRoot(url, OrderRootType.CLASSES);
 
             DependencyScope scope = determineScope((String) dependency.get("scope"));
-            libraryDependencyScopeMap.put(libraryModel, scope);
+            LibraryInfo libraryInfo = new LibraryInfo();
+            libraryInfo.library = library;
+            libraryInfo.modifiableModel = libraryModel;
+            libraryInfo.dependencyScope = scope;
+            result.add(libraryInfo);
         }
-        return libraryDependencyScopeMap;
+        return result;
     }
 
     /**
@@ -389,6 +395,12 @@ public class ModuleCreationUtils {
             scope = DependencyScope.PROVIDED;
         }
         return scope;
+    }
+
+    private static class LibraryInfo {
+        public Library library;
+        public Library.ModifiableModel modifiableModel;
+        public DependencyScope dependencyScope;
     }
 
 }
