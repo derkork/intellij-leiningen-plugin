@@ -3,6 +3,12 @@
     <description>This plugin integrates the Leiningen build system into IntelliJ IDEA.</description>
     <change-notes>
         <![CDATA[
+        <p>Version 0.3.3</p>
+        <ul>
+        <li>Version range corrected, to make plugin work with IDEA 12.1</li>
+        </ul>
+
+
         <p>Version 0.3.2</p>
         <ul>
         <li>Fixed issue #18 (hopefully).</li>
@@ -77,7 +83,7 @@
         </ul>
         ]]>
     </change-notes>
-    <version>0.3.2</version>
+    <version>0.3.3</version>
     <vendor email="janthomae@janthomae.de" url="http://github.com/derkork/intellij-leiningen-plugin">Jan Thomä</vendor>
     <idea-version since-build="120.000" until-build="129.9999"/>
 
