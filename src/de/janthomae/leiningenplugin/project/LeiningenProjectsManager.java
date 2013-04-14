@@ -28,6 +28,12 @@ public class LeiningenProjectsManager extends  SimpleProjectComponent implements
         return p.getComponent(LeiningenProjectsManager.class);
     }
 
+    /**
+     * Determine if this file is a leiningen project file.
+     *
+     * @param file The virtual file.
+     * @return True if it is a leiningen project file.
+     */
     public static boolean isProjectFile(VirtualFile file) {
         return file != null && !file.isDirectory() && file.exists() &&
                 file.getName().equals(LeiningenConstants.PROJECT_CLJ);
@@ -92,6 +98,12 @@ public class LeiningenProjectsManager extends  SimpleProjectComponent implements
         notifyListeners();
     }
 
+    /**
+     * Determine if file represents a leiningen project that we're already managing.
+     *
+     * @param file The virtual file to check.
+     * @return true if we're managing this file already, false if not.
+     */
     public boolean isManagedFile(VirtualFile file) {
         for (LeiningenProject myLeiningenProject : leiningenProjects) {
             if (myLeiningenProject.getVirtualFile().equals(file)) {

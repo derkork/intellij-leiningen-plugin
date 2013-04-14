@@ -11,6 +11,7 @@ import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.module.StdModuleTypes;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.*;
+import com.intellij.openapi.roots.ex.ProjectRootManagerEx;
 import com.intellij.openapi.roots.impl.libraries.ProjectLibraryTable;
 import com.intellij.openapi.roots.libraries.Library;
 import com.intellij.openapi.roots.libraries.LibraryTable;
@@ -291,6 +292,9 @@ public class ModuleCreationUtils {
         final ModifiableModuleModel moduleManager = createModuleManager(ideaProject);
         final ModifiableRootModel module = createModule(moduleManager, leinProjectFile.getParent().getPath(), name);
         initializeModulePaths(projectMap, module, leinProjectFile.getParent());
+
+        ProjectRootManagerEx rootManager = ProjectRootManagerEx.getInstanceEx(ideaProject);
+        module.setSdk(rootManager.getProjectSdk());
 
         //Setup the dependencies
         // Based loosely on org.jetbrains.idea.maven.importing.MavenRootModelAdapter#addLibraryDependency
