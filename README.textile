@@ -5,9 +5,9 @@ of IntelliJ.
 
 h2. Features
 
-* Import leiningen projects into IntelliJ IDEA:
+* Import leiningen projects into IntelliJ IDEA.
 * Directly open a leiningen project file (just like you can open maven POMs).
-* Dependencies from the leiningen project file are set up as libraries in IntelliJ
+* Dependencies from the leiningen project file are set up as libraries in IntelliJ.
 * Run the mostly used actions (like compile, jar, uberjar, etc.) with a single click.
 * Create run configurations for less used or parametrized actions.
 
