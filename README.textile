@@ -3,6 +3,14 @@ h1. The IntelliJ Leiningen Plugin
 This plugin integrates Leiningen into IntelliJ. It is supposed to work with both the Ultimate and Community Edition
 of IntelliJ.
 
+h2. Features
+
+* Import leiningen projects into IntelliJ IDEA:
+* Directly open a leiningen project file (just like you can open maven POMs).
+* Dependencies from the leiningen project file are set up as libraries in IntelliJ
+* Run the mostly used actions (like compile, jar, uberjar, etc.) with a single click.
+* Create run configurations for less used or parametrized actions.
+
 h2. Usage
 
 Install the plugin via the plugin manager of IntelliJ. Then go to Settings > Leiningen and set up the location of
