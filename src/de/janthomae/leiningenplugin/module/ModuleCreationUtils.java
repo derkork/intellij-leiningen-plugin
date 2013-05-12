@@ -382,7 +382,10 @@ public class ModuleCreationUtils {
      * @return A DependencyScope object
      */
     private DependencyScope determineScope(String s) {
-        DependencyScope scope = null;
+
+        //Issue 35: If the scope that is on the dependency doesn't match one of the DependencyScope types, then default to compile scope.
+        DependencyScope scope = DependencyScope.COMPILE;
+
         if (s.equalsIgnoreCase("compile")) {
             scope = DependencyScope.COMPILE;
         }
