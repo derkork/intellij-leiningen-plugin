@@ -3,6 +3,10 @@
     <description>This plugin integrates the Leiningen build system into IntelliJ IDEA.</description>
     <change-notes>
         <![CDATA[
+        <p>Version 0.3.4</p>
+        <ul>
+        <li>Added ability to 'Import a Project' and point to a project.clj file.</li>
+        </ul>
         <p>Version 0.3.3</p>
         <ul>
         <li>Version range corrected, to make plugin work with IDEA 12.1</li>
@@ -83,9 +87,12 @@
         </ul>
         ]]>
     </change-notes>
-    <version>0.3.3</version>
+    <version>0.3.4</version>
     <vendor email="janthomae@janthomae.de" url="http://github.com/derkork/intellij-leiningen-plugin">Jan Thomä</vendor>
     <idea-version since-build="120.000" until-build="129.9999"/>
+
+    <!--If you don't want this to appear in red, make sure you add the La Clojure plugin jars to the SDK classpath-->
+    <depends>org.intellij.clojure</depends>
 
     <application-components>
     </application-components>
@@ -139,7 +146,6 @@
         </group>
 
     </actions>
-
     <extensions defaultExtensionNs="com.intellij">
         <configurationType implementation="de.janthomae.leiningenplugin.run.LeiningenRunConfigurationType"/>
         <applicationConfigurable implementation="de.janthomae.leiningenplugin.settings.LeiningenSettings"/>
@@ -147,6 +153,7 @@
                             serviceImplementation="de.janthomae.leiningenplugin.run.LeiningenRunnerSettings"/>
         <projectOpenProcessor implementation="de.janthomae.leiningenplugin.project.LeiningenProjectOpenProcessor"/>
         <projectImportBuilder implementation="de.janthomae.leiningenplugin.project.LeiningenProjectBuilder"/>
+        <projectImportProvider implementation="de.janthomae.leiningenplugin.project.LeiningenProjectImportProvider"/>
 
     </extensions>
 </idea-plugin>
