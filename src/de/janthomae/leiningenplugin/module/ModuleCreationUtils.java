@@ -11,6 +11,7 @@ import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.module.StdModuleTypes;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.*;
+import com.intellij.openapi.roots.ex.ProjectRootManagerEx;
 import com.intellij.openapi.roots.impl.libraries.ProjectLibraryTable;
 import com.intellij.openapi.roots.libraries.Library;
 import com.intellij.openapi.roots.libraries.LibraryTable;
@@ -292,6 +293,9 @@ public class ModuleCreationUtils {
         final ModifiableRootModel module = createModule(moduleManager, leinProjectFile.getParent().getPath(), name);
         initializeModulePaths(projectMap, module, leinProjectFile.getParent());
 
+        ProjectRootManagerEx rootManager = ProjectRootManagerEx.getInstanceEx(ideaProject);
+        module.setSdk(rootManager.getProjectSdk());
+
         //Setup the dependencies
         // Based loosely on org.jetbrains.idea.maven.importing.MavenRootModelAdapter#addLibraryDependency
 
@@ -378,7 +382,10 @@ public class ModuleCreationUtils {
      * @return A DependencyScope object
      */
     private DependencyScope determineScope(String s) {
-        DependencyScope scope = null;
+
+        //Issue 35: If the scope that is on the dependency doesn't match one of the DependencyScope types, then default to compile scope.
+        DependencyScope scope = DependencyScope.COMPILE;
+
         if (s.equalsIgnoreCase("compile")) {
             scope = DependencyScope.COMPILE;
         }

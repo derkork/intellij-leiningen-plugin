@@ -13,6 +13,10 @@ import javax.swing.*;
 import java.util.List;
 
 /**
+ * This is for when we select the 'Import a Project' from the Main Menu in IDEA.
+ *
+ * Essentially, we create an IDEA project with a module in it that corresponds to the project.clj file that was selected.
+ *
  * @author <a href="janthomae@janthomae.de">Jan Thom&auml;</a>
  * @version $Id:$
  */
@@ -53,14 +57,18 @@ public class LeiningenProjectBuilder extends ProjectImportBuilder<LeiningenProje
                                ModulesProvider modulesProvider, ModifiableArtifactModel modifiableArtifactModel) {
 
         LeiningenProjectsManager manager = LeiningenProjectsManager.getInstance(project);
-        return manager.importLeiningenProject(projectFile, project);
+        return manager.importLeiningenProject(getProjectFile(), project);
     }
 
     public void setProjectFile(VirtualFile projectFile) {
         this.projectFile = projectFile;
     }
 
+    public VirtualFile getProjectFile() {
+        return projectFile;
+    }
+
     public String getSuggestedProjectName() {
-        return LeiningenProject.nameAndVersionFromProjectFile(projectFile)[0];
+        return LeiningenProject.nameAndVersionFromProjectFile(getProjectFile())[0];
     }
 }
