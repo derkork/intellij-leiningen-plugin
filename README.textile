@@ -1,14 +1,13 @@
-h1. The IntelliJ Leiningen Plugin
-
-This plugin integrates Leiningen into IntelliJ. It is supposed to work with both the Ultimate and Community Edition
-of IntelliJ.
-
 h2. Status notice
 
 *This project is no longer actively maintained by me. If you're looking for a Clojure development environment based
 on IntelliJ and with Leiningen support, check out "Cursive":http://cursiveclojure.com . If you want to add new
 functionality to this plugin, feel free to fork and modify it as you like.*
 
+h1. The IntelliJ Leiningen Plugin
+
+This plugin integrates Leiningen into IntelliJ. It is supposed to work with both the Ultimate and Community Edition
+of IntelliJ.
 
 h2. Features
 
