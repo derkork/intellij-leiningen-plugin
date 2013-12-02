@@ -3,6 +3,7 @@ package de.janthomae.leiningenplugin.run;
 import com.intellij.compiler.options.CompileStepBeforeRun;
 import com.intellij.execution.*;
 import com.intellij.execution.configurations.ConfigurationFactory;
+import com.intellij.execution.configurations.ConfigurationType;
 import com.intellij.execution.configurations.ConfigurationTypeUtil;
 import com.intellij.execution.configurations.RunConfiguration;
 import com.intellij.execution.executors.DefaultRunExecutor;
@@ -25,7 +26,7 @@ import javax.swing.*;
  * @author <a href="janthomae@janthomae.de">Jan Thom&auml;</a>
  * @version $Id:$
  */
-public class LeiningenRunConfigurationType implements LocatableConfigurationType {
+public class LeiningenRunConfigurationType implements ConfigurationType {
     private ConfigurationFactory myFactory;
 
     LeiningenRunConfigurationType() {
@@ -85,11 +86,12 @@ public class LeiningenRunConfigurationType implements LocatableConfigurationType
                 project);
 
         ProgramRunner runner = RunnerRegistry.getInstance().findRunnerById(DefaultRunExecutor.EXECUTOR_ID);
-        ExecutionEnvironment env = new ExecutionEnvironment(runner, configSettings, context);
-        Executor executor = DefaultRunExecutor.getRunExecutorInstance();
+		Executor executor = DefaultRunExecutor.getRunExecutorInstance();
+		ExecutionEnvironment env = new ExecutionEnvironment(executor, runner, configSettings, project);
+
 
         try {
-            runner.execute(executor, env, new ProgramRunner.Callback() {
+            runner.execute(env, new ProgramRunner.Callback() {
                 public void processStarted(RunContentDescriptor runContentDescriptor) {
                     final ProcessHandler runContentDescriptorProcessHandler = runContentDescriptor.getProcessHandler();
                     if (runContentDescriptorProcessHandler != null) {

@@ -5,12 +5,10 @@ import com.intellij.execution.Executor;
 import com.intellij.execution.configurations.*;
 import com.intellij.execution.filters.TextConsoleBuilderFactory;
 import com.intellij.execution.runners.ExecutionEnvironment;
-import com.intellij.execution.runners.ProgramRunner;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.options.SettingsEditor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.InvalidDataException;
-import com.intellij.openapi.util.JDOMExternalizable;
 import com.intellij.openapi.util.WriteExternalException;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -45,14 +43,6 @@ public class LeiningenRunConfiguration extends RunConfigurationBase
 
     public SettingsEditor<? extends RunConfiguration> getConfigurationEditor() {
         return new LeiningenRunConfigurationSettings(getProject());
-    }
-
-    public JDOMExternalizable createRunnerSettings(ConfigurationInfoProvider configurationInfoProvider) {
-        return null;
-    }
-
-    public SettingsEditor<JDOMExternalizable> getRunnerSettingsEditor(ProgramRunner programRunner) {
-        return null;
     }
 
     @NotNull
